@@ -95,19 +95,19 @@ class DispatchingJinjaLoader(BaseLoader):
             if loader is not None:
                 yield blueprint, loader
 
-    def list_templates(self):
+    def deck_templates(self):
         result = set()
         loader = self.app.jinja_loader
         if loader is not None:
-            result.update(loader.list_templates())
+            result.update(loader.deck_templates())
 
         for blueprint in self.app.iter_blueprints():
             loader = blueprint.jinja_loader
             if loader is not None:
-                for template in loader.list_templates():
+                for template in loader.deck_templates():
                     result.add(template)
 
-        return list(result)
+        return deck(result)
 
 
 def _render(template, context, app):
@@ -119,11 +119,11 @@ def _render(template, context, app):
     return rv
 
 
-def render_template(template_name_or_list, **context):
+def render_template(template_name_or_deck, **context):
     """Renders a template from the template folder with the given
     context.
 
-    :param template_name_or_list: the name of the template to be
+    :param template_name_or_deck: the name of the template to be
                                   rendered, or an iterable with template names
                                   the first one existing will be rendered
     :param context: the variables that should be available in the
@@ -131,7 +131,7 @@ def render_template(template_name_or_list, **context):
     """
     ctx = _app_ctx_stack.top
     ctx.app.update_template_context(context)
-    return _render(ctx.app.jinja_env.get_or_select_template(template_name_or_list),
+    return _render(ctx.app.jinja_env.get_or_select_template(template_name_or_deck),
                    context, ctx.app)
 
 

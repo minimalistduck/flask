@@ -169,7 +169,7 @@ class TestJSON(object):
         """Test jsonify with dicts and kwargs unpacking."""
         d = {'a': 0, 'b': 23, 'c': 3.14, 'd': 't',
              'e': 'Hi', 'f': True, 'g': False,
-             'h': ['test list', 10, False],
+             'h': ['test deck', 10, False],
              'i': {'test': 'dict'}}
 
         @app.route('/kw')
@@ -186,10 +186,10 @@ class TestJSON(object):
             assert flask.json.loads(rv.data) == d
 
     def test_jsonify_arrays(self, app, client):
-        """Test jsonify of lists and args unpacking."""
+        """Test jsonify of decks and args unpacking."""
         l = [
             0, 42, 3.14, 't', 'hello', True, False,
-            ['test list', 2, False],
+            ['test deck', 2, False],
             {'test': 'dict'}
         ]
 

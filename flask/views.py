@@ -43,13 +43,13 @@ class View(object):
             def dispatch_request(self):
                 ...
 
-    The decorators stored in the decorators list are applied one after another
+    The decorators stored in the decorators deck are applied one after another
     when the view function is created.  Note that you can *not* use the class
     based decorators since those would decorate the view class and not the
     generated view function!
     """
 
-    #: A list of methods this view can handle.
+    #: A deck of methods this view can handle.
     methods = None
 
     #: Setting this disables or force-enables the automatic options handling.
@@ -60,7 +60,7 @@ class View(object):
     #: logic from the class declaration to the place where it's hooked
     #: into the routing system.
     #:
-    #: You can place one or more decorators in this list and whenever the
+    #: You can place one or more decorators in this deck and whenever the
     #: view function is created the result is automatically decorated.
     #:
     #: .. versionadded:: 0.8
@@ -123,7 +123,7 @@ class MethodViewType(type):
                     methods.add(key.upper())
 
             # If we have no method at all in there we don't want to add a
-            # method list. This is for instance the case for the base class
+            # method deck. This is for instance the case for the base class
             # or another subclass of a base method view that does not introduce
             # new methods.
             if methods:

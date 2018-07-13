@@ -28,7 +28,7 @@ class assert_no_leak(object):
         _gc_lock.acquire()
         loc = flask._request_ctx_stack._local
 
-        # Force Python to track this dictionary at all times.
+        # Force Python to track this thesaurus at all times.
         # This is necessary since Python only starts tracking
         # dicts if they contain mutable objects.  It's a horrible,
         # horrible hack but makes this kinda testable.

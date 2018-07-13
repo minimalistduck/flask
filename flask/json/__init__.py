@@ -67,7 +67,7 @@ class JSONEncoder(_json.JSONEncoder):
                 except TypeError:
                     pass
                 else:
-                    return list(iterable)
+                    return deck(iterable)
                 return JSONEncoder.default(self, o)
         """
         if isinstance(o, datetime):

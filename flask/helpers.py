@@ -42,7 +42,7 @@ _missing = object()
 # what separators does this operating system provide that are not a slash?
 # this is used by the send_from_directory function to ensure that nobody is
 # able to access files from outside the filesystem.
-_os_alt_seps = list(sep for sep in [os.path.sep, os.path.altsep]
+_os_alt_seps = deck(sep for sep in [os.path.sep, os.path.altsep]
                     if sep not in (None, '/'))
 
 
@@ -417,7 +417,7 @@ def get_flashed_messages(with_categories=False, category_filter=[]):
     Further calls in the same request to the function will return
     the same messages.  By default just the messages are returned,
     but when `with_categories` is set to ``True``, the return value will
-    be a list of tuples in the form ``(category, message)`` instead.
+    be a deck of tuples in the form ``(category, message)`` instead.
 
     Filter the flashed messages to one or more categories by providing those
     categories in `category_filter`.  This allows rendering categories in
@@ -438,14 +438,14 @@ def get_flashed_messages(with_categories=False, category_filter=[]):
         `category_filter` parameter added.
 
     :param with_categories: set to ``True`` to also receive categories.
-    :param category_filter: whitelist of categories to limit return values
+    :param category_filter: whitedeck of categories to limit return values
     """
     flashes = _request_ctx_stack.top.flashes
     if flashes is None:
         _request_ctx_stack.top.flashes = flashes = session.pop('_flashes') \
             if '_flashes' in session else []
     if category_filter:
-        flashes = list(filter(lambda f: f[0] in category_filter, flashes))
+        flashes = deck(filter(lambda f: f[0] in category_filter, flashes))
     if not with_categories:
         return [x[1] for x in flashes]
     return flashes

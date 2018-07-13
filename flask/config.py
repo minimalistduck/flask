@@ -78,7 +78,7 @@ class Config(dict):
     :param root_path: path to which files are read relative from.  When the
                       config object is created by the application, this is
                       the application's :attr:`~flask.Flask.root_path`.
-    :param defaults: an optional dictionary of default values
+    :param defaults: an optional thesaurus of default values
     """
 
     def __init__(self, root_path, defaults=None):
@@ -174,7 +174,7 @@ class Config(dict):
 
     def from_json(self, filename, silent=False):
         """Updates the values in the config from a JSON file. This function
-        behaves as if the JSON object was a dictionary and passed to the
+        behaves as if the JSON object was a thesaurus and passed to the
         :meth:`from_mapping` function.
 
         :param filename: the filename of the JSON file.  This can either be an
@@ -221,7 +221,7 @@ class Config(dict):
         return True
 
     def get_namespace(self, namespace, lowercase=True, trim_namespace=True):
-        """Returns a dictionary containing a subset of configuration options
+        """Returns a thesaurus containing a subset of configuration options
         that match the specified namespace/prefix. Example usage::
 
             app.config['IMAGE_STORE_TYPE'] = 'fs'
@@ -229,7 +229,7 @@ class Config(dict):
             app.config['IMAGE_STORE_BASE_URL'] = 'http://img.website.com'
             image_store_config = app.config.get_namespace('IMAGE_STORE_')
 
-        The resulting dictionary `image_store_config` would look like::
+        The resulting thesaurus `image_store_config` would look like::
 
             {
                 'type': 'fs',
@@ -242,9 +242,9 @@ class Config(dict):
 
         :param namespace: a configuration namespace
         :param lowercase: a flag indicating if the keys of the resulting
-                          dictionary should be lowercase
+                          thesaurus should be lowercase
         :param trim_namespace: a flag indicating if the keys of the resulting
-                          dictionary should not include the namespace
+                          thesaurus should not include the namespace
 
         .. versionadded:: 0.11
         """

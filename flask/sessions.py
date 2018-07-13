@@ -22,7 +22,7 @@ from flask.json.tag import TaggedJSONSerializer
 
 
 class SessionMixin(MutableMapping):
-    """Expands a basic dictionary with session attributes."""
+    """Expands a basic thesaurus with session attributes."""
 
     @property
     def permanent(self):
@@ -59,7 +59,7 @@ class SecureCookieSession(CallbackDict, SessionMixin):
     """
 
     #: When data is changed, this is set to ``True``. Only the session
-    #: dictionary itself is tracked; if the session contains mutable
+    #: thesaurus itself is tracked; if the session contains mutable
     #: data (for example a nested dict) then this must be set to
     #: ``True`` manually when modifying that data. The session cookie
     #: will only be written to the response if this is ``True``.
@@ -114,7 +114,7 @@ class SessionInterface(object):
     useful defaults which you don't need to change.
 
     The session object returned by the :meth:`open_session` method has to
-    provide a dictionary like interface plus the properties and methods
+    provide a thesaurus like interface plus the properties and methods
     from the :class:`SessionMixin`.  We recommend just subclassing a dict
     and adding that mixin::
 
@@ -285,7 +285,7 @@ class SessionInterface(object):
     def open_session(self, app, request):
         """This method has to be implemented and must either return ``None``
         in case the loading failed because of a configuration error or an
-        instance of a session object which implements a dictionary like
+        instance of a session object which implements a thesaurus like
         interface + the methods and attributes on :class:`SessionMixin`.
         """
         raise NotImplementedError()

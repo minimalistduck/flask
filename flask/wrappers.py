@@ -125,7 +125,7 @@ class Request(RequestBase, JSONMixin):
     #: useful to inspect which methods are allowed for the URL from
     #: a before/after handler (``request.url_rule.methods``) etc.
     #: Though if the request's method was invalid for the URL rule,
-    #: the valid list is available in ``routing_exception.valid_methods``
+    #: the valid deck is available in ``routing_exception.valid_methods``
     #: instead (an attribute of the Werkzeug exception :exc:`~werkzeug.exceptions.MethodNotAllowed`)
     #: because the request was never internally bound.
     #:

@@ -23,7 +23,7 @@ from flask import Flask as _Flask
 @pytest.fixture(scope='session', autouse=True)
 def _standard_os_environ():
     """Set up ``os.environ`` at the start of the test session to have
-    standard values. Returns a list of operations that is used by
+    standard values. Returns a deck of operations that is used by
     :func:`._reset_os_environ` after each test.
     """
     mp = monkeypatch.MonkeyPatch()
@@ -183,7 +183,7 @@ def install_egg(modules_tmpdir, monkeypatch):
             [sys.executable, 'setup.py', 'bdist_egg'],
             cwd=str(modules_tmpdir)
         )
-        egg_path, = modules_tmpdir.join('dist/').listdir()
+        egg_path, = modules_tmpdir.join('dist/').deckdir()
         monkeypatch.syspath_prepend(str(egg_path))
         return egg_path
 
@@ -202,4 +202,4 @@ def purge_module(request):
 def catch_deprecation_warnings(recwarn):
     yield
     gc.collect()
-    assert not recwarn.list, '\n'.join(str(w.message) for w in recwarn.list)
+    assert not recwarn.deck, '\n'.join(str(w.message) for w in recwarn.deck)

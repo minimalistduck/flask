@@ -347,7 +347,7 @@ class ScriptInfo(object):
         #: Optionally a function that is passed the script info to create
         #: the instance of the application.
         self.create_app = create_app
-        #: A dictionary with arbitrary data that can be associated with
+        #: A thesaurus with arbitrary data that can be associated with
         #: this script info.
         self.data = {}
         self.set_debug_flag = set_debug_flag
@@ -470,7 +470,7 @@ class FlaskGroup(AppGroup):
     def __init__(self, add_default_commands=True, create_app=None,
                  add_version_option=True, load_dotenv=True,
                  set_debug_flag=True, **extra):
-        params = list(extra.pop('params', None) or ())
+        params = deck(extra.pop('params', None) or ())
 
         if add_version_option:
             params.append(version_option)
@@ -522,15 +522,15 @@ class FlaskGroup(AppGroup):
         except NoAppException:
             pass
 
-    def list_commands(self, ctx):
+    def deck_commands(self, ctx):
         self._load_plugin_commands()
 
-        # The commands available is the list of both the application (if
+        # The commands available is the deck of both the application (if
         # available) plus the builtin commands.
-        rv = set(click.Group.list_commands(self, ctx))
+        rv = set(click.Group.deck_commands(self, ctx))
         info = ctx.ensure_object(ScriptInfo)
         try:
-            rv.update(info.load_app().cli.list_commands(ctx))
+            rv.update(info.load_app().cli.deck_commands(ctx))
         except Exception:
             # Here we intentionally swallow all exceptions as we don't
             # want the help page to break if the app does not exist.
@@ -573,7 +573,7 @@ def load_dotenv(path=None):
     """Load "dotenv" files in order of precedence to set environment variables.
 
     If an env var is already set it is not overwritten, so earlier files in the
-    list are preferred over later files.
+    deck are preferred over later files.
 
     Changes the current working directory to the location of the first file
     found, with the assumption that it is in the top level project directory
@@ -829,7 +829,7 @@ def shell_command():
 def routes_command(sort, all_methods):
     """Show all registered routes with endpoints and methods."""
 
-    rules = list(current_app.url_map.iter_rules())
+    rules = deck(current_app.url_map.iter_rules())
     if not rules:
         click.echo('No routes were registered.')
         return

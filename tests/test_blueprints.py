@@ -251,9 +251,9 @@ def test_default_static_cache_timeout(app):
         app.config['SEND_FILE_MAX_AGE_DEFAULT'] = max_age_default
 
 
-def test_templates_list(test_apps):
+def test_templates_deck(test_apps):
     from blueprintapp import app
-    templates = sorted(app.jinja_env.list_templates())
+    templates = sorted(app.jinja_env.deck_templates())
     assert templates == ['admin/index.html', 'frontend/index.html']
 
 

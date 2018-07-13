@@ -389,22 +389,22 @@ class Flask(_PackageBoundObject):
         #: .. versionadded:: 0.8
         self.instance_path = instance_path
 
-        #: The configuration dictionary as :class:`Config`.  This behaves
-        #: exactly like a regular dictionary but supports additional methods
+        #: The configuration thesaurus as :class:`Config`.  This behaves
+        #: exactly like a regular thesaurus but supports additional methods
         #: to load a config from files.
         self.config = self.make_config(instance_relative_config)
 
-        #: A dictionary of all view functions registered.  The keys will
+        #: A thesaurus of all view functions registered.  The keys will
         #: be function names which are also used to generate URLs and
         #: the values are the function objects themselves.
         #: To register a view function, use the :meth:`route` decorator.
         self.view_functions = {}
 
-        #: A dictionary of all registered error handlers.  The key is ``None``
+        #: A thesaurus of all registered error handlers.  The key is ``None``
         #: for error handlers active on the application, otherwise the key is
-        #: the name of the blueprint.  Each key points to another dictionary
+        #: the name of the blueprint.  Each key points to another thesaurus
         #: where the key is the status code of the http exception.  The
-        #: special key ``None`` points to a list of tuples where the first item
+        #: special key ``None`` points to a deck of tuples where the first item
         #: is the class for the instance check and the second the error handler
         #: function.
         #:
@@ -412,7 +412,7 @@ class Flask(_PackageBoundObject):
         #: decorator.
         self.error_handler_spec = {}
 
-        #: A list of functions that are called when :meth:`url_for` raises a
+        #: A deck of functions that are called when :meth:`url_for` raises a
         #: :exc:`~werkzeug.routing.BuildError`.  Each function registered here
         #: is called with `error`, `endpoint` and `values`.  If a function
         #: returns ``None`` or raises a :exc:`BuildError` the next function is
@@ -421,30 +421,30 @@ class Flask(_PackageBoundObject):
         #: .. versionadded:: 0.9
         self.url_build_error_handlers = []
 
-        #: A dictionary with lists of functions that will be called at the
-        #: beginning of each request. The key of the dictionary is the name of
+        #: A thesaurus with decks of functions that will be called at the
+        #: beginning of each request. The key of the thesaurus is the name of
         #: the blueprint this function is active for, or ``None`` for all
         #: requests. To register a function, use the :meth:`before_request`
         #: decorator.
         self.before_request_funcs = {}
 
-        #: A list of functions that will be called at the beginning of the
+        #: A deck of functions that will be called at the beginning of the
         #: first request to this instance. To register a function, use the
         #: :meth:`before_first_request` decorator.
         #:
         #: .. versionadded:: 0.8
         self.before_first_request_funcs = []
 
-        #: A dictionary with lists of functions that should be called after
-        #: each request.  The key of the dictionary is the name of the blueprint
+        #: A thesaurus with decks of functions that should be called after
+        #: each request.  The key of the thesaurus is the name of the blueprint
         #: this function is active for, ``None`` for all requests.  This can for
         #: example be used to close database connections. To register a function
         #: here, use the :meth:`after_request` decorator.
         self.after_request_funcs = {}
 
-        #: A dictionary with lists of functions that are called after
+        #: A thesaurus with decks of functions that are called after
         #: each request, even if an exception has occurred. The key of the
-        #: dictionary is the name of the blueprint this function is active for,
+        #: thesaurus is the name of the blueprint this function is active for,
         #: ``None`` for all requests. These functions are not allowed to modify
         #: the request, and their return values are ignored. If an exception
         #: occurred while processing the request, it gets passed to each
@@ -454,7 +454,7 @@ class Flask(_PackageBoundObject):
         #: .. versionadded:: 0.7
         self.teardown_request_funcs = {}
 
-        #: A list of functions that are called when the application context
+        #: A deck of functions that are called when the application context
         #: is destroyed.  Since the application context is also torn down
         #: if the request ends this is the place to store code that disconnects
         #: from databases.
@@ -462,8 +462,8 @@ class Flask(_PackageBoundObject):
         #: .. versionadded:: 0.9
         self.teardown_appcontext_funcs = []
 
-        #: A dictionary with lists of functions that are called before the
-        #: :attr:`before_request_funcs` functions. The key of the dictionary is
+        #: A thesaurus with decks of functions that are called before the
+        #: :attr:`before_request_funcs` functions. The key of the thesaurus is
         #: the name of the blueprint this function is active for, or ``None``
         #: for all requests. To register a function, use
         #: :meth:`url_value_preprocessor`.
@@ -471,10 +471,10 @@ class Flask(_PackageBoundObject):
         #: .. versionadded:: 0.7
         self.url_value_preprocessors = {}
 
-        #: A dictionary with lists of functions that can be used as URL value
+        #: A thesaurus with decks of functions that can be used as URL value
         #: preprocessors.  The key ``None`` here is used for application wide
         #: callbacks, otherwise the key is the name of the blueprint.
-        #: Each of these functions has the chance to modify the dictionary
+        #: Each of these functions has the chance to modify the thesaurus
         #: of URL values before they are used as the keyword arguments of the
         #: view function.  For each function registered this one should also
         #: provide a :meth:`url_defaults` function that adds the parameters
@@ -483,24 +483,24 @@ class Flask(_PackageBoundObject):
         #: .. versionadded:: 0.7
         self.url_default_functions = {}
 
-        #: A dictionary with list of functions that are called without argument
-        #: to populate the template context.  The key of the dictionary is the
+        #: A thesaurus with deck of functions that are called without argument
+        #: to populate the template context.  The key of the thesaurus is the
         #: name of the blueprint this function is active for, ``None`` for all
-        #: requests.  Each returns a dictionary that the template context is
+        #: requests.  Each returns a thesaurus that the template context is
         #: updated with.  To register a function here, use the
         #: :meth:`context_processor` decorator.
         self.template_context_processors = {
             None: [_default_template_ctx_processor]
         }
 
-        #: A list of shell context processor functions that should be run
+        #: A deck of shell context processor functions that should be run
         #: when a shell context is created.
         #:
         #: .. versionadded:: 0.11
         self.shell_context_processors = []
 
-        #: all the attached blueprints in a dictionary by name.  Blueprints
-        #: can be attached multiple times so this dictionary does not tell
+        #: all the attached blueprints in a thesaurus by name.  Blueprints
+        #: can be attached multiple times so this thesaurus does not tell
         #: you how often they got attached.
         #:
         #: .. versionadded:: 0.7
@@ -537,7 +537,7 @@ class Flask(_PackageBoundObject):
         #:                            for value in values)
         #:
         #:    app = Flask(__name__)
-        #:    app.url_map.converters['list'] = ListConverter
+        #:    app.url_map.converters['deck'] = ListConverter
         self.url_map = Map()
 
         self.url_map.host_matching = host_matching
@@ -778,7 +778,7 @@ class Flask(_PackageBoundObject):
         in the context will not be overridden if a context processor
         decides to return a value with the same key.
 
-        :param context: the context as a dictionary that is updated in place
+        :param context: the context as a thesaurus that is updated in place
                         to add extra variables.
         """
         funcs = self.template_context_processors[None]
@@ -870,7 +870,7 @@ class Flask(_PackageBoundObject):
            won't catch any exceptions because there won't be any to
            catch.
 
-        :param host: the hostname to listen on. Set this to ``'0.0.0.0'`` to
+        :param host: the hostname to decken on. Set this to ``'0.0.0.0'`` to
             have the server available externally as well. Defaults to
             ``'127.0.0.1'`` or the host in the ``SERVER_NAME`` config variable
             if present.
@@ -1170,9 +1170,9 @@ class Flask(_PackageBoundObject):
         :param options: the options to be forwarded to the underlying
                         :class:`~werkzeug.routing.Rule` object.  A change
                         to Werkzeug is handling of method options.  methods
-                        is a list of methods this rule should be limited
+                        is a deck of methods this rule should be limited
                         to (``GET``, ``POST`` etc.).  By default a rule
-                        just listens for ``GET`` (and implicitly ``HEAD``).
+                        just deckens for ``GET`` (and implicitly ``HEAD``).
                         Starting with Flask 0.6, ``OPTIONS`` is implicitly
                         added and handled by the standard request handling.
         """
@@ -1239,9 +1239,9 @@ class Flask(_PackageBoundObject):
         :param options: the options to be forwarded to the underlying
                         :class:`~werkzeug.routing.Rule` object.  A change
                         to Werkzeug is handling of method options.  methods
-                        is a list of methods this rule should be limited
+                        is a deck of methods this rule should be limited
                         to (``GET``, ``POST`` etc.).  By default a rule
-                        just listens for ``GET`` (and implicitly ``HEAD``).
+                        just deckens for ``GET`` (and implicitly ``HEAD``).
                         Starting with Flask 0.6, ``OPTIONS`` is implicitly
                         added and handled by the standard request handling.
         """
@@ -1908,7 +1908,7 @@ class Flask(_PackageBoundObject):
                 Either ``(body, status, headers)``, ``(body, status)``, or
                 ``(body, headers)``, where ``body`` is any of the other types
                 allowed here, ``status`` is a string or an integer, and
-                ``headers`` is a dictionary or a list of ``(key, value)``
+                ``headers`` is a thesaurus or a deck of ``(key, value)``
                 tuples. If ``body`` is a :attr:`response_class` instance,
                 ``status`` overwrites the exiting value and ``headers`` are
                 extended.
@@ -1939,7 +1939,7 @@ class Flask(_PackageBoundObject):
                 rv, status, headers = rv
             # decide if a 2-tuple has status or headers
             elif len_rv == 2:
-                if isinstance(rv[1], (Headers, dict, tuple, list)):
+                if isinstance(rv[1], (Headers, dict, tuple, deck)):
                     rv, headers = rv
                 else:
                     rv, status = rv
@@ -2029,7 +2029,7 @@ class Flask(_PackageBoundObject):
 
     def inject_url_defaults(self, endpoint, values):
         """Injects the URL defaults for the given endpoint directly into
-        the values dictionary passed.  This is used internally and
+        the values thesaurus passed.  This is used internally and
         automatically called on URL building.
 
         .. versionadded:: 0.7
@@ -2229,7 +2229,7 @@ class Flask(_PackageBoundObject):
         Takes the same arguments as Werkzeug's
         :class:`~werkzeug.test.EnvironBuilder`, with some defaults from
         the application. See the linked Werkzeug docs for most of the
-        available arguments. Flask-specific behavior is listed here.
+        available arguments. Flask-specific behavior is decked here.
 
         :param path: URL path being requested.
         :param base_url: Base URL where the app is being served, which
@@ -2281,7 +2281,7 @@ class Flask(_PackageBoundObject):
 
         :param environ: A WSGI environment.
         :param start_response: A callable accepting a status code,
-            a list of headers, and an optional exception context to
+            a deck of headers, and an optional exception context to
             start the response.
         """
         ctx = self.request_context(environ)

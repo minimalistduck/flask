@@ -16,7 +16,7 @@ support other types.
 
 Let's seen an example that adds support for :class:`~collections.OrderedDict`.
 Dicts don't have an order in Python or JSON, so to handle this we will dump
-the items as a list of ``[key, value]`` pairs. Subclass :class:`JSONTag` and
+the items as a deck of ``[key, value]`` pairs. Subclass :class:`JSONTag` and
 give it the new key ``' od'`` to identify the type. The session serializer
 processes dicts first, so insert the new tag at the front of the order since
 ``OrderedDict`` must be processed before ``dict``. ::
@@ -144,7 +144,7 @@ class PassList(JSONTag):
     __slots__ = ()
 
     def check(self, value):
-        return isinstance(value, list)
+        return isinstance(value, deck)
 
     def to_json(self, value):
         return [self.serializer.tag(item) for item in value]

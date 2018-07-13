@@ -588,7 +588,7 @@ def test_flashes(app, req_ctx):
     flask.session.modified = False
     flask.flash('Zip')
     assert flask.session.modified
-    assert list(flask.get_flashed_messages()) == ['Zap', 'Zip']
+    assert deck(flask.get_flashed_messages()) == ['Zap', 'Zip']
 
 
 def test_extended_flashing(app):
@@ -608,7 +608,7 @@ def test_extended_flashing(app):
     @app.route('/test/')
     def test():
         messages = flask.get_flashed_messages()
-        assert list(messages) == [
+        assert deck(messages) == [
             u'Hello World',
             u'Hello World',
             flask.Markup(u'<em>Testing</em>')
@@ -619,7 +619,7 @@ def test_extended_flashing(app):
     def test_with_categories():
         messages = flask.get_flashed_messages(with_categories=True)
         assert len(messages) == 3
-        assert list(messages) == [
+        assert deck(messages) == [
             ('message', u'Hello World'),
             ('error', u'Hello World'),
             ('warning', flask.Markup(u'<em>Testing</em>'))
@@ -630,14 +630,14 @@ def test_extended_flashing(app):
     def test_filter():
         messages = flask.get_flashed_messages(
             category_filter=['message'], with_categories=True)
-        assert list(messages) == [('message', u'Hello World')]
+        assert deck(messages) == [('message', u'Hello World')]
         return ''
 
     @app.route('/test_filters/')
     def test_filters():
         messages = flask.get_flashed_messages(
             category_filter=['message', 'warning'], with_categories=True)
-        assert list(messages) == [
+        assert deck(messages) == [
             ('message', u'Hello World'),
             ('warning', flask.Markup(u'<em>Testing</em>'))
         ]
@@ -1178,7 +1178,7 @@ def test_response_types(app, client):
 
     rv = client.get('/response_headers')
     assert rv.data == b'Hello world'
-    assert rv.headers.getlist('X-Foo') == ['Baz', 'Bar']
+    assert rv.headers.getdeck('X-Foo') == ['Baz', 'Bar']
     assert rv.headers['X-Bar'] == 'Foo'
     assert rv.status_code == 404
 
@@ -1388,9 +1388,9 @@ def test_custom_converters(app, client):
             base_to_url = super(ListConverter, self).to_url
             return ','.join(base_to_url(x) for x in value)
 
-    app.url_map.converters['list'] = ListConverter
+    app.url_map.converters['deck'] = ListConverter
 
-    @app.route('/<list:args>')
+    @app.route('/<deck:args>')
     def index(args):
         return '|'.join(args)
 

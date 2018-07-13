@@ -29,7 +29,7 @@ class BlueprintSetupState(object):
         #: a reference to the blueprint that created this setup state.
         self.blueprint = blueprint
 
-        #: a dictionary with all options that were passed to the
+        #: a thesaurus with all options that were passed to the
         #: :meth:`~flask.Flask.register_blueprint` method.
         self.options = options
 
@@ -54,7 +54,7 @@ class BlueprintSetupState(object):
         #: blueprint.
         self.url_prefix = url_prefix
 
-        #: A dictionary with URL defaults that is added to each and every
+        #: A thesaurus with URL defaults that is added to each and every
         #: URL that was defined with the blueprint.
         self.url_defaults = dict(self.blueprint.url_values_defaults)
         self.url_defaults.update(self.options.get('url_defaults', ()))
