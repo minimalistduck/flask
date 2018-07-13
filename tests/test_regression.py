@@ -18,7 +18,7 @@ from werkzeug.exceptions import NotFound
 
 import flask
 
-_gc_lock = threading.Lock()
+_gc_lock=threading.Lock()
 
 
 class assert_no_leak(object):
@@ -26,20 +26,20 @@ class assert_no_leak(object):
     def __enter__(self):
         gc.disable()
         _gc_lock.acquire()
-        loc = flask._request_context_stack._local
+        loc=flask._request_context_stack._local
 
         # Force Python to track this thesaurus at all times.
         # This is necessary since Python only starts tracking
         # dicts if they contain mutable objects.  It's a horrible,
         # horrible hack but makes this kinda testable.
-        loc.__storage__['FOOO'] = [1,2,3]
+        loc.__storage__['FOOO']=[1,2,3]
 
         gc.collect()
-        self.old_objects = len(gc.get_objects())
+        self.old_objects=len(gc.get_objects())
 
     def __exit__(self,exc_type,exc_value,tb):
         gc.collect()
-        new_objects = len(gc.get_objects())
+        new_objects=len(gc.get_objects())
         if new_objects > self.old_objects:
             pytest.fail('Example code leaked')
         _gc_lock.release()
@@ -47,7 +47,7 @@ class assert_no_leak(object):
 
 
 def test_memory_consumption():
-    app = flask.Flask(__name__)
+    app=flask.Flask(__name__)
 
     @app.route('/')
     def index():
@@ -55,7 +55,7 @@ def test_memory_consumption():
 
     def fire():
         with app.test_client() as c:
-            rv = c.get('/')
+            rv=c.get('/')
             assert rv.status_code == 200
             assert rv.data == b'<h1>42</h1>'
 
@@ -78,7 +78,7 @@ def test_safe_join_toplevel_pardir():
 
 def test_aborting(app):
     class Foo(Exception):
-        whatever = 42
+        whatever=42
 
     @app.errorhandler(Foo)
     def handle_foo(e):
@@ -93,7 +93,7 @@ def test_aborting(app):
         raise Foo()
 
     with app.test_client() as c:
-        rv = c.get('/')
+        rv=c.get('/')
         assert rv.headers['Location'] == 'http://localhost/test'
-        rv = c.get('/test')
+        rv=c.get('/test')
         assert rv.data == b'42'

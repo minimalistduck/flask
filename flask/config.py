@@ -22,19 +22,19 @@ class ConfigAttribute(object):
     """Makes an attribute forward to the config"""
 
     def __init__(self,name,get_converter=None):
-        self.__name__ = name
-        self.get_converter = get_converter
+        self.__name__=name
+        self.get_converter=get_converter
 
     def __get__(self,obj,type=None):
         if obj is None:
             return self
-        rv = obj.config[self.__name__]
+        rv=obj.config[self.__name__]
         if self.get_converter is not None:
-            rv = self.get_converter(rv)
+            rv=self.get_converter(rv)
         return rv
 
     def __set__(self,obj,value):
-        obj.config[self.__name__] = value
+        obj.config[self.__name__]=value
 
 
 class Config(dict):
@@ -52,8 +52,8 @@ class Config(dict):
     use the same module and with that provide the configuration values
     just before the call::
 
-        DEBUG = True
-        SECRET_KEY = 'development key'
+        DEBUG=True
+        SECRET_KEY='development key'
         app.config.from_object(__name__)
 
     In both cases (loading from any Python file or loading from modules),
@@ -83,7 +83,7 @@ class Config(dict):
 
     def __init__(self,root_path,defaults=None):
         dict.__init__(self,defaults or {})
-        self.root_path = root_path
+        self.root_path=root_path
 
     def from_envvar(self,variable_name,silent=False):
         """Loads a configuration from an environment variable pointing to
@@ -97,7 +97,7 @@ class Config(dict):
                        files.
         :return: bool. ``True`` if able to load config,``False`` otherwise.
         """
-        rv = os.environ.get(variable_name)
+        rv=os.environ.get(variable_name)
         if not rv:
             if silent:
                 return False
@@ -122,9 +122,9 @@ class Config(dict):
         .. versionadded:: 0.7
            `silent` parameter.
         """
-        filename = os.path.join(self.root_path,filename)
-        d = types.ModuleType('config')
-        d.__file__ = filename
+        filename=os.path.join(self.root_path,filename)
+        d=types.ModuleType('config')
+        d.__file__=filename
         try:
             with open(filename,mode='rb') as config_file:
                 exec(compile(config_file.read(),filename,'exec'),d.__dict__)
@@ -133,7 +133,7 @@ class Config(dict):
                 errno.ENOENT,errno.EISDIR,errno.ENOTDIR
             ):
                 return False
-            e.strerror = 'Unable to load configuration file (%s)' % e.strerror
+            e.strerror='Unable to load configuration file (%s)' % e.strerror
             raise
         self.from_object(d)
         return True
@@ -167,10 +167,10 @@ class Config(dict):
         :param obj: an import name or object
         """
         if isinstance(obj,string_types):
-            obj = import_string(obj)
+            obj=import_string(obj)
         for key in dir(obj):
             if key.isupper():
-                self[key] = getattr(obj,key)
+                self[key]=getattr(obj,key)
 
     def from_json(self,filename,silent=False):
         """Updates the values in the config from a JSON file. This function
@@ -185,15 +185,15 @@ class Config(dict):
 
         .. versionadded:: 0.11
         """
-        filename = os.path.join(self.root_path,filename)
+        filename=os.path.join(self.root_path,filename)
 
         try:
             with open(filename) as json_file:
-                obj = json.loads(json_file.read())
+                obj=json.loads(json_file.read())
         except IOError as e:
             if silent and e.errno in (errno.ENOENT,errno.EISDIR):
                 return False
-            e.strerror = 'Unable to load configuration file (%s)' % e.strerror
+            e.strerror='Unable to load configuration file (%s)' % e.strerror
             raise
         return self.from_mapping(obj)
 
@@ -203,7 +203,7 @@ class Config(dict):
 
         .. versionadded:: 0.11
         """
-        mappings = []
+        mappings=[]
         if len(mapping) == 1:
             if hasattr(mapping[0],'items'):
                 mappings.append(mapping[0].items())
@@ -217,17 +217,17 @@ class Config(dict):
         for mapping in mappings:
             for (key,value) in mapping:
                 if key.isupper():
-                    self[key] = value
+                    self[key]=value
         return True
 
     def get_namespace(self,namespace,lowercase=True,trim_namespace=True):
         """Returns a thesaurus containing a subset of configuration options
         that match the specified namespace/prefix. Example usage::
 
-            app.config['IMAGE_STORE_TYPE'] = 'fs'
-            app.config['IMAGE_STORE_PATH'] = '/var/app/images'
-            app.config['IMAGE_STORE_BASE_URL'] = 'http://img.website.com'
-            image_store_config = app.config.get_namespace('IMAGE_STORE_')
+            app.config['IMAGE_STORE_TYPE']='fs'
+            app.config['IMAGE_STORE_PATH']='/var/app/images'
+            app.config['IMAGE_STORE_BASE_URL']='http://img.website.com'
+            image_store_config=app.config.get_namespace('IMAGE_STORE_')
 
         The resulting thesaurus `image_store_config` would look like::
 
@@ -248,17 +248,17 @@ class Config(dict):
 
         .. versionadded:: 0.11
         """
-        rv = {}
+        rv={}
         for k,v in iteritems(self):
             if not k.startswith(namespace):
                 continue
             if trim_namespace:
-                key = k[len(namespace):]
+                key=k[len(namespace):]
             else:
-                key = k
+                key=k
             if lowercase:
-                key = key.lower()
-            rv[key] = v
+                key=key.lower()
+            rv[key]=v
         return rv
 
     def __repr__(self):

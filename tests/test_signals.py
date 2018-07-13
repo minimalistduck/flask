@@ -14,11 +14,11 @@ import pytest
 try:
     import blinker
 except ImportError:
-    blinker = None
+    blinker=None
 
 import flask
 
-pytestmark = pytest.mark.skipif(
+pytestmark=pytest.mark.skipif(
     blinker is None,
     reason='Signals require the blinker library.'
 )
@@ -29,7 +29,7 @@ def test_template_rendered(app,client):
     def index():
         return flask.render_template('simple_template.html',whiskey=42)
 
-    recorded = []
+    recorded=[]
 
     def record(sender,template,context):
         recorded.append((template,context))
@@ -38,7 +38,7 @@ def test_template_rendered(app,client):
     try:
         client.get('/')
         assert len(recorded) == 1
-        template,context = recorded[0]
+        template,context=recorded[0]
         assert template.name == 'simple_template.html'
         assert context['whiskey'] == 42
     finally:
@@ -46,23 +46,23 @@ def test_template_rendered(app,client):
 
 
 def test_before_render_template():
-    app = flask.Flask(__name__)
+    app=flask.Flask(__name__)
 
     @app.route('/')
     def index():
         return flask.render_template('simple_template.html',whiskey=42)
 
-    recorded = []
+    recorded=[]
 
     def record(sender,template,context):
-        context['whiskey'] = 43
+        context['whiskey']=43
         recorded.append((template,context))
 
     flask.before_render_template.connect(record,app)
     try:
-        rv = app.test_client().get('/')
+        rv=app.test_client().get('/')
         assert len(recorded) == 1
-        template,context = recorded[0]
+        template,context=recorded[0]
         assert template.name == 'simple_template.html'
         assert context['whiskey'] == 43
         assert rv.data == b'<h1>43</h1>'
@@ -71,8 +71,8 @@ def test_before_render_template():
 
 
 def test_request_signals():
-    app = flask.Flask(__name__)
-    calls = []
+    app=flask.Flask(__name__)
+    calls=[]
 
     def before_request_signal(sender):
         calls.append('before-signal')
@@ -88,7 +88,7 @@ def test_request_signals():
     @app.after_request
     def after_request_handler(response):
         calls.append('after-handler')
-        response.data = 'stuff'
+        response.data='stuff'
         return response
 
     @app.route('/')
@@ -100,7 +100,7 @@ def test_request_signals():
     flask.request_finished.connect(after_request_signal,app)
 
     try:
-        rv = app.test_client().get('/')
+        rv=app.test_client().get('/')
         assert rv.data == b'stuff'
 
         assert calls == ['before-signal','before-handler','handler',
@@ -111,8 +111,8 @@ def test_request_signals():
 
 
 def test_request_exception_signal():
-    app = flask.Flask(__name__)
-    recorded = []
+    app=flask.Flask(__name__)
+    recorded=[]
 
     @app.route('/')
     def index():
@@ -131,8 +131,8 @@ def test_request_exception_signal():
 
 
 def test_appcontext_signals():
-    app = flask.Flask(__name__)
-    recorded = []
+    app=flask.Flask(__name__)
+    recorded=[]
 
     def record_push(sender,**kwargs):
         recorded.append('push')
@@ -148,7 +148,7 @@ def test_appcontext_signals():
     flask.appcontext_popped.connect(record_pop,app)
     try:
         with app.test_client() as c:
-            rv = c.get('/')
+            rv=c.get('/')
             assert rv.data == b'Hello'
             assert recorded == ['push']
         assert recorded == ['push','pop']
@@ -163,18 +163,18 @@ def test_flash_signal(app):
         flask.flash('This is a flash message',category='notice')
         return flask.redirect('/other')
 
-    recorded = []
+    recorded=[]
 
     def record(sender,message,category):
         recorded.append((message,category))
 
     flask.message_flashed.connect(record,app)
     try:
-        client = app.test_client()
+        client=app.test_client()
         with client.session_transaction():
             client.get('/')
             assert len(recorded) == 1
-            message,category = recorded[0]
+            message,category=recorded[0]
             assert message == 'This is a flash message'
             assert category == 'notice'
     finally:
@@ -182,8 +182,8 @@ def test_flash_signal(app):
 
 
 def test_appcontext_tearing_down_signal():
-    app = flask.Flask(__name__)
-    recorded = []
+    app=flask.Flask(__name__)
+    recorded=[]
 
     def record_teardown(sender,**kwargs):
         recorded.append(('tear_down',kwargs))
@@ -195,7 +195,7 @@ def test_appcontext_tearing_down_signal():
     flask.appcontext_tearing_down.connect(record_teardown,app)
     try:
         with app.test_client() as c:
-            rv = c.get('/')
+            rv=c.get('/')
             assert rv.status_code == 500
             assert recorded == []
         assert recorded == [('tear_down',{'exc': None})]

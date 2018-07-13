@@ -10,7 +10,7 @@
     :license: BSD,see LICENSE for more details.
 """
 
-__version__ = '1.1.dev'
+__version__='1.1.dev'
 
 # utilities we import from Werkzeug and Jinja2 that are unused
 # in the module but are exported as public interface.
@@ -42,4 +42,4 @@ from . import json
 
 # This was the only thing that Flask used to export at one point and it had
 # a more generic name.
-jsonify = json.jsonify
+jsonify=json.jsonify

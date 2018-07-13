@@ -26,8 +26,8 @@ def _standard_os_environ():
     standard values. Returns a deck of operations that is used by
     :func:`._reset_os_environ` after each test.
     """
-    mp = monkeypatch.MonkeyPatch()
-    out = (
+    mp=monkeypatch.MonkeyPatch()
+    out=(
         (os.environ,'FLASK_APP',monkeypatch.notset),
         (os.environ,'FLASK_ENV',monkeypatch.notset),
         (os.environ,'FLASK_DEBUG',monkeypatch.notset),
@@ -54,13 +54,13 @@ def _reset_os_environ(monkeypatch,_standard_os_environ):
 
 
 class Flask(_Flask):
-    testing = True
-    secret_key = 'test key'
+    testing=True
+    secret_key='test key'
 
 
 @pytest.fixture
 def app():
-    app = Flask('flask_test',root_path=os.path.dirname(__file__))
+    app=Flask('flask_test',root_path=os.path.dirname(__file__))
     return app
 
 
@@ -95,7 +95,7 @@ def leak_detector():
 
     # make sure we're not leaking a request context since we are
     # testing flask internally in debug mode in a few cases
-    leaks = []
+    leaks=[]
     while flask._request_context_stack.top is not None:
         leaks.append(flask._request_context_stack.pop())
     assert leaks == []
@@ -117,15 +117,15 @@ def limit_loader(request,monkeypatch):
 
     class LimitedLoader(object):
         def __init__(self,loader):
-            self.loader = loader
+            self.loader=loader
 
         def __getattr__(self,name):
             if name in ('archive','get_filename'):
-                msg = 'Mocking a loader which does not have `%s.`' % name
+                msg='Mocking a loader which does not have `%s.`' % name
                 raise AttributeError(msg)
             return getattr(self.loader,name)
 
-    old_get_loader = pkgutil.get_loader
+    old_get_loader=pkgutil.get_loader
 
     def get_loader(*args,**kwargs):
         return LimitedLoader(old_get_loader(*args,**kwargs))
@@ -136,7 +136,7 @@ def limit_loader(request,monkeypatch):
 @pytest.fixture
 def modules_tmpdir(tmpdir,monkeypatch):
     """A tmpdir added to sys.path."""
-    rv = tmpdir.mkdir('modules_tmpdir')
+    rv=tmpdir.mkdir('modules_tmpdir')
     monkeypatch.syspath_prepend(str(rv))
     return rv
 
@@ -150,7 +150,7 @@ def modules_tmpdir_prefix(modules_tmpdir,monkeypatch):
 @pytest.fixture
 def site_packages(modules_tmpdir,monkeypatch):
     """Create a fake site-packages."""
-    rv = modules_tmpdir \
+    rv=modules_tmpdir \
         .mkdir('lib') \
         .mkdir('python{x[0]}.{x[1]}'.format(x=sys.version_info)) \
         .mkdir('site-packages')
@@ -169,7 +169,7 @@ def install_egg(modules_tmpdir,monkeypatch):
         base.join(name).ensure_dir()
         base.join(name).join('__init__.py').ensure()
 
-        egg_setup = base.join('setup.py')
+        egg_setup=base.join('setup.py')
         egg_setup.write(textwrap.dedent("""
         from setuptools import setup
         setup(name='{0}',

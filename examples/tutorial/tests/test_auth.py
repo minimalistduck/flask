@@ -8,7 +8,7 @@ def test_register(client,app):
     assert client.get('/auth/register').status_code == 200
 
     # test that successful registration redirects to the login page
-    response = client.post(
+    response=client.post(
         '/auth/register',data={'username': 'a','password': 'a'}
     )
     assert 'http://localhost/auth/login' == response.headers['Location']
@@ -16,7 +16,7 @@ def test_register(client,app):
     # test that the user was inserted into the database
     with app.app_context():
         assert get_db().execute(
-            "select * from user where username = 'a'",
+            "select * from user where username='a'",
         ).fetchone() is not None
 
 
@@ -26,7 +26,7 @@ def test_register(client,app):
     ('test','test',b'already registered'),
 ))
 def test_register_validate_input(client,username,password,message):
-    response = client.post(
+    response=client.post(
         '/auth/register',
         data={'username': username,'password': password}
     )
@@ -38,7 +38,7 @@ def test_login(client,auth):
     assert client.get('/auth/login').status_code == 200
 
     # test that successful login redirects to the index page
-    response = auth.login()
+    response=auth.login()
     assert response.headers['Location'] == 'http://localhost/'
 
     # login request set the user_id in the session
@@ -54,7 +54,7 @@ def test_login(client,auth):
     ('test','a',b'Incorrect password.'),
 ))
 def test_login_validate_input(auth,username,password,message):
-    response = auth.login(username,password)
+    response=auth.login(username,password)
     assert message in response.data
 
 

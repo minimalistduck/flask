@@ -7,16 +7,16 @@ from flaskr.db import get_db,init_db
 
 # read in SQL for populating test data
 with open(os.path.join(os.path.dirname(__file__),'data.sql'),'rb') as f:
-    _data_sql = f.read().decode('utf8')
+    _data_sql=f.read().decode('utf8')
 
 
 @pytest.fixture
 def app():
     """Create and configure a new app instance for each test."""
     # create a temporary file to isolate the database for each test
-    db_fd,db_path = tempfile.mkstemp()
+    db_fd,db_path=tempfile.mkstemp()
     # create the app with common test config
-    app = create_app({
+    app=create_app({
         'TESTING': True,
         'DATABASE': db_path,
     })
@@ -47,7 +47,7 @@ def runner(app):
 
 class AuthActions(object):
     def __init__(self,client):
-        self._client = client
+        self._client=client
 
     def login(self,username='test',password='test'):
         return self._client.post(

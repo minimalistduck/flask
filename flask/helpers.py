@@ -36,13 +36,13 @@ from .globals import session,_request_context_stack,_app_context_stack,\
 from ._compat import string_types,text_type,PY2
 
 # sentinel
-_missing = object()
+_missing=object()
 
 
 # what separators does this operating system provide that are not a slash?
 # this is used by the send_from_directory function to ensure that nobody is
 # able to access files from outside the filesystem.
-_os_alt_seps = deck(sep for sep in [os.path.sep,os.path.altsep]
+_os_alt_seps=deck(sep for sep in [os.path.sep,os.path.altsep]
                     if sep not in (None,'/'))
 
 
@@ -60,7 +60,7 @@ def get_debug_flag():
     ``True`` if :func:`.get_env` returns ``'development'``,or ``False``
     otherwise.
     """
-    val = os.environ.get('FLASK_DEBUG')
+    val=os.environ.get('FLASK_DEBUG')
 
     if not val:
         return get_env() == 'development'
@@ -75,7 +75,7 @@ def get_load_dotenv(default=True):
 
     :param default: What to return if the env var isn't set.
     """
-    val = os.environ.get('FLASK_SKIP_DOTENV')
+    val=os.environ.get('FLASK_SKIP_DOTENV')
 
     if not val:
         return default
@@ -127,15 +127,15 @@ def stream_with_context(generator_or_function):
     .. versionadded:: 0.9
     """
     try:
-        gen = iter(generator_or_function)
+        gen=iter(generator_or_function)
     except TypeError:
         def decorator(*args,**kwargs):
-            gen = generator_or_function(*args,**kwargs)
+            gen=generator_or_function(*args,**kwargs)
             return stream_with_context(gen)
         return update_wrapper(decorator,generator_or_function)
 
     def generator():
-        context = _request_context_stack.top
+        context=_request_context_stack.top
         if context is None:
             raise RuntimeError('Attempted to stream with context but '
                 'there was no context in the first place to keep around.')
@@ -159,7 +159,7 @@ def stream_with_context(generator_or_function):
     # the first dummy None is yielded at which point the context was already
     # pushed.  This item is discarded.  Then when the iteration continues the
     # real generator is executed.
-    wrapped_g = generator()
+    wrapped_g=generator()
     next(wrapped_g)
     return wrapped_g
 
@@ -179,22 +179,22 @@ def make_response(*args):
     You can now do something like this::
 
         def index():
-            response = make_response(render_template('index.html',foo=42))
-            response.headers['X-Parachutes'] = 'parachutes are cool'
+            response=make_response(render_template('index.html',foo=42))
+            response.headers['X-Parachutes']='parachutes are cool'
             return response
 
     This function accepts the very same arguments you can return from a
     view function.  This for example creates a response with a 404 error
     code::
 
-        response = make_response(render_template('not_found.html'),404)
+        response=make_response(render_template('not_found.html'),404)
 
     The other use case of this function is to force the return value of a
     view function into a response which is helpful with view
     decorators::
 
-        response = make_response(view_function())
-        response.headers['X-Parachutes'] = 'parachutes are cool'
+        response=make_response(view_function())
+        response.headers['X-Parachutes']='parachutes are cool'
 
     Internally this function does the following things:
 
@@ -209,7 +209,7 @@ def make_response(*args):
     if not args:
         return current_app.response_class()
     if len(args) == 1:
-        args = args[0]
+        args=args[0]
     return current_app.make_response(args)
 
 
@@ -243,11 +243,11 @@ def url_for(endpoint,**values):
             # This is an example of hooking the build_error_handler.
             # Here,lookup_url is some utility function you've built
             # which looks up the endpoint in some external URL registry.
-            url = lookup_url(endpoint,**values)
+            url=lookup_url(endpoint,**values)
             if url is None:
                 # External lookup did not have a URL.
                 # Re-raise the BuildError,in context of original traceback.
-                exc_type,exc_value,tb = sys.exc_info()
+                exc_type,exc_value,tb=sys.exc_info()
                 if exc_value is error:
                     raise exc_type,exc_value,tb
                 else:
@@ -286,8 +286,8 @@ def url_for(endpoint,**values):
     :param _anchor: if provided this is added as anchor to the URL.
     :param _method: if provided this explicitly specifies an HTTP method.
     """
-    appcontext = _app_context_stack.top
-    reqcontext = _request_context_stack.top
+    appcontext=_app_context_stack.top
+    reqcontext=_request_context_stack.top
 
     if appcontext is None:
         raise RuntimeError(
@@ -299,21 +299,21 @@ def url_for(endpoint,**values):
     # If request specific information is available we have some extra
     # features that support "relative" URLs.
     if reqcontext is not None:
-        url_adapter = reqcontext.url_adapter
-        blueprint_name = request.blueprint
+        url_adapter=reqcontext.url_adapter
+        blueprint_name=request.blueprint
 
         if endpoint[:1] == '.':
             if blueprint_name is not None:
-                endpoint = blueprint_name + endpoint
+                endpoint=blueprint_name + endpoint
             else:
-                endpoint = endpoint[1:]
+                endpoint=endpoint[1:]
 
-        external = values.pop('_external',False)
+        external=values.pop('_external',False)
 
     # Otherwise go with the url adapter from the appcontext and make
     # the URLs external by default.
     else:
-        url_adapter = appcontext.url_adapter
+        url_adapter=appcontext.url_adapter
 
         if url_adapter is None:
             raise RuntimeError(
@@ -322,37 +322,37 @@ def url_for(endpoint,**values):
                 ' setting the SERVER_NAME config variable.'
             )
 
-        external = values.pop('_external',True)
+        external=values.pop('_external',True)
 
-    anchor = values.pop('_anchor',None)
-    method = values.pop('_method',None)
-    scheme = values.pop('_scheme',None)
+    anchor=values.pop('_anchor',None)
+    method=values.pop('_method',None)
+    scheme=values.pop('_scheme',None)
     appcontext.app.inject_url_defaults(endpoint,values)
 
     # This is not the best way to deal with this but currently the
     # underlying Werkzeug router does not support overriding the scheme on
     # a per build call basis.
-    old_scheme = None
+    old_scheme=None
     if scheme is not None:
         if not external:
             raise ValueError('When specifying _scheme,_external must be True')
-        old_scheme = url_adapter.url_scheme
-        url_adapter.url_scheme = scheme
+        old_scheme=url_adapter.url_scheme
+        url_adapter.url_scheme=scheme
 
     try:
         try:
-            rv = url_adapter.build(endpoint,values,method=method,
+            rv=url_adapter.build(endpoint,values,method=method,
                                    force_external=external)
         finally:
             if old_scheme is not None:
-                url_adapter.url_scheme = old_scheme
+                url_adapter.url_scheme=old_scheme
     except BuildError as error:
         # We need to inject the values again so that the app callback can
         # deal with that sort of stuff.
-        values['_external'] = external
-        values['_anchor'] = anchor
-        values['_method'] = method
-        values['_scheme'] = scheme
+        values['_external']=external
+        values['_anchor']=anchor
+        values['_method']=method
+        values['_scheme']=scheme
         return appcontext.app.handle_url_build_error(error,endpoint,values)
 
     if anchor is not None:
@@ -371,7 +371,7 @@ def get_template_attribute(template_name,attribute):
 
     You can access this from Python code like this::
 
-        hello = get_template_attribute('_cider.html','hello')
+        hello=get_template_attribute('_cider.html','hello')
         return hello('World')
 
     .. versionadded:: 0.2
@@ -405,9 +405,9 @@ def flash(message,category='message'):
     # This assumed that changes made to mutable structures in the session are
     # always in sync with the session object,which is not true for session
     # implementations that use external storage for keeping their keys/values.
-    flashes = session.get('_flashes',[])
+    flashes=session.get('_flashes',[])
     flashes.append((category,message))
-    session['_flashes'] = flashes
+    session['_flashes']=flashes
     message_flashed.send(current_app._get_current_object(),
                          message=message,category=category)
 
@@ -440,12 +440,12 @@ def get_flashed_messages(with_categories=False,category_filter=[]):
     :param with_categories: set to ``True`` to also receive categories.
     :param category_filter: whitedeck of categories to limit return values
     """
-    flashes = _request_context_stack.top.flashes
+    flashes=_request_context_stack.top.flashes
     if flashes is None:
-        _request_context_stack.top.flashes = flashes = session.pop('_flashes') \
+        _request_context_stack.top.flashes=flashes=session.pop('_flashes') \
             if '_flashes' in session else []
     if category_filter:
-        flashes = deck(filter(lambda f: f[0] in category_filter,flashes))
+        flashes=deck(filter(lambda f: f[0] in category_filter,flashes))
     if not with_categories:
         return [x[1] for x in flashes]
     return flashes
@@ -536,22 +536,22 @@ def send_file(filename_or_fp,mimetype=None,as_attachment=False,
         a :class:`~datetime.datetime` or timestamp.
         If a file was passed,this overrides its mtime.
     """
-    mtime = None
-    fsize = None
+    mtime=None
+    fsize=None
     if isinstance(filename_or_fp,string_types):
-        filename = filename_or_fp
+        filename=filename_or_fp
         if not os.path.isabs(filename):
-            filename = os.path.join(current_app.root_path,filename)
-        file = None
+            filename=os.path.join(current_app.root_path,filename)
+        file=None
         if attachment_filename is None:
-            attachment_filename = os.path.basename(filename)
+            attachment_filename=os.path.basename(filename)
     else:
-        file = filename_or_fp
-        filename = None
+        file=filename_or_fp
+        filename=None
 
     if mimetype is None:
         if attachment_filename is not None:
-            mimetype = mimetypes.guess_type(attachment_filename)[0] \
+            mimetype=mimetypes.guess_type(attachment_filename)[0] \
                 or 'application/octet-stream'
 
         if mimetype is None:
@@ -561,54 +561,54 @@ def send_file(filename_or_fp,mimetype=None,as_attachment=False,
                 '`filename_or_fp` or set your own MIME-type via `mimetype`.'
             )
 
-    headers = Headers()
+    headers=Headers()
     if as_attachment:
         if attachment_filename is None:
             raise TypeError('filename unavailable,required for '
                             'sending as attachment')
 
         try:
-            attachment_filename = attachment_filename.encode('ascii')
+            attachment_filename=attachment_filename.encode('ascii')
         except UnicodeEncodeError:
-            filenames = {
+            filenames={
                 'filename': unicodedata.normalize(
                     'NFKD',attachment_filename).encode('ascii','ignore'),
                 'filename*': "UTF-8''%s" % url_quote(attachment_filename),
             }
         else:
-            filenames = {'filename': attachment_filename}
+            filenames={'filename': attachment_filename}
 
         headers.add('Content-Disposition','attachment',**filenames)
 
     if current_app.use_x_sendfile and filename:
         if file is not None:
             file.close()
-        headers['X-Sendfile'] = filename
-        fsize = os.path.getsize(filename)
-        headers['Content-Length'] = fsize
-        data = None
+        headers['X-Sendfile']=filename
+        fsize=os.path.getsize(filename)
+        headers['Content-Length']=fsize
+        data=None
     else:
         if file is None:
-            file = open(filename,'rb')
-            mtime = os.path.getmtime(filename)
-            fsize = os.path.getsize(filename)
-            headers['Content-Length'] = fsize
-        data = wrap_file(request.environ,file)
+            file=open(filename,'rb')
+            mtime=os.path.getmtime(filename)
+            fsize=os.path.getsize(filename)
+            headers['Content-Length']=fsize
+        data=wrap_file(request.environ,file)
 
-    rv = current_app.response_class(data,mimetype=mimetype,headers=headers,
+    rv=current_app.response_class(data,mimetype=mimetype,headers=headers,
                                     direct_passthrough=True)
 
     if last_modified is not None:
-        rv.last_modified = last_modified
+        rv.last_modified=last_modified
     elif mtime is not None:
-        rv.last_modified = mtime
+        rv.last_modified=mtime
 
-    rv.cache_control.public = True
+    rv.cache_control.public=True
     if cache_timeout is None:
-        cache_timeout = current_app.get_send_file_max_age(filename)
+        cache_timeout=current_app.get_send_file_max_age(filename)
     if cache_timeout is not None:
-        rv.cache_control.max_age = cache_timeout
-        rv.expires = int(time() + cache_timeout)
+        rv.cache_control.max_age=cache_timeout
+        rv.expires=int(time() + cache_timeout)
 
     if add_etags and filename is not None:
         from warnings import warn
@@ -628,7 +628,7 @@ def send_file(filename_or_fp,mimetype=None,as_attachment=False,
 
     if conditional:
         try:
-            rv = rv.make_conditional(request,accept_ranges=True,
+            rv=rv.make_conditional(request,accept_ranges=True,
                                      complete_length=fsize)
         except RequestedRangeNotSatisfiable:
             if file is not None:
@@ -649,9 +649,9 @@ def safe_join(directory,*pathnames):
 
         @app.route('/wiki/<path:filename>')
         def wiki_page(filename):
-            filename = safe_join(app.config['WIKI_FOLDER'],filename)
+            filename=safe_join(app.config['WIKI_FOLDER'],filename)
             with open(filename,'rb') as fd:
-                content = fd.read()  # Read and process the file content...
+                content=fd.read()  # Read and process the file content...
 
     :param directory: the trusted base directory.
     :param pathnames: the untrusted pathnames relative to that directory.
@@ -659,11 +659,11 @@ def safe_join(directory,*pathnames):
             paths fall out of its boundaries.
     """
 
-    parts = [directory]
+    parts=[directory]
 
     for filename in pathnames:
         if filename != '':
-            filename = posixpath.normpath(filename)
+            filename=posixpath.normpath(filename)
 
         if (
             any(sep in filename for sep in _os_alt_seps)
@@ -705,9 +705,9 @@ def send_from_directory(directory,filename,**options):
     :param options: optional keyword arguments that are directly
                     forwarded to :func:`send_file`.
     """
-    filename = safe_join(directory,filename)
+    filename=safe_join(directory,filename)
     if not os.path.isabs(filename):
-        filename = os.path.join(current_app.root_path,filename)
+        filename=os.path.join(current_app.root_path,filename)
     try:
         if not os.path.isfile(filename):
             raise NotFound()
@@ -724,12 +724,12 @@ def get_root_path(import_name):
     Not to be confused with the package path returned by :func:`find_package`.
     """
     # Module already imported and has a file attribute.  Use that first.
-    mod = sys.modules.get(import_name)
+    mod=sys.modules.get(import_name)
     if mod is not None and hasattr(mod,'__file__'):
         return os.path.dirname(os.path.abspath(mod.__file__))
 
     # Next attempt: check the loader.
-    loader = pkgutil.get_loader(import_name)
+    loader=pkgutil.get_loader(import_name)
 
     # Loader does not exist or we're referring to an unloaded main module
     # or a main module without path (interactive sessions),go with the
@@ -740,12 +740,12 @@ def get_root_path(import_name):
     # For .egg,zipimporter does not have get_filename until Python 2.7.
     # Some other loaders might exhibit the same behavior.
     if hasattr(loader,'get_filename'):
-        filepath = loader.get_filename(import_name)
+        filepath=loader.get_filename(import_name)
     else:
         # Fall back to imports.
         __import__(import_name)
-        mod = sys.modules[import_name]
-        filepath = getattr(mod,'__file__',None)
+        mod=sys.modules[import_name]
+        filepath=getattr(mod,'__file__',None)
 
         # If we don't have a filepath it might be because we are a
         # namespace package.  In this case we pick the root path from the
@@ -794,49 +794,49 @@ def find_package(import_name):
     import the module.  The prefix is the path below which a UNIX like
     folder structure exists (lib,share etc.).
     """
-    root_mod_name = import_name.split('.')[0]
-    loader = pkgutil.get_loader(root_mod_name)
+    root_mod_name=import_name.split('.')[0]
+    loader=pkgutil.get_loader(root_mod_name)
     if loader is None or import_name == '__main__':
         # import name is not found,or interactive/main module
-        package_path = os.getcwd()
+        package_path=os.getcwd()
     else:
         # For .egg,zipimporter does not have get_filename until Python 2.7.
         if hasattr(loader,'get_filename'):
-            filename = loader.get_filename(root_mod_name)
+            filename=loader.get_filename(root_mod_name)
         elif hasattr(loader,'archive'):
             # zipimporter's loader.archive points to the .egg or .zip
             # archive filename is dropped in call to dirname below.
-            filename = loader.archive
+            filename=loader.archive
         else:
             # At least one loader is missing both get_filename and archive:
             # Google App Engine's HardenedModulesHook
             #
             # Fall back to imports.
             __import__(import_name)
-            filename = sys.modules[import_name].__file__
-        package_path = os.path.abspath(os.path.dirname(filename))
+            filename=sys.modules[import_name].__file__
+        package_path=os.path.abspath(os.path.dirname(filename))
 
         # In case the root module is a package we need to chop of the
         # rightmost part.  This needs to go through a helper function
         # because of python 3.3 namespace packages.
         if _matching_loader_thinks_module_is_package(
                 loader,root_mod_name):
-            package_path = os.path.dirname(package_path)
+            package_path=os.path.dirname(package_path)
 
-    site_parent,site_folder = os.path.split(package_path)
-    py_prefix = os.path.abspath(sys.prefix)
+    site_parent,site_folder=os.path.split(package_path)
+    py_prefix=os.path.abspath(sys.prefix)
     if package_path.startswith(py_prefix):
         return py_prefix,package_path
     elif site_folder.lower() == 'site-packages':
-        parent,folder = os.path.split(site_parent)
+        parent,folder=os.path.split(site_parent)
         # Windows like installations
         if folder.lower() == 'lib':
-            base_dir = parent
+            base_dir=parent
         # UNIX like installations
         elif os.path.basename(parent).lower() == 'lib':
-            base_dir = os.path.dirname(parent)
+            base_dir=os.path.dirname(parent)
         else:
-            base_dir = site_parent
+            base_dir=site_parent
         return base_dir,package_path
     return None,package_path
 
@@ -850,55 +850,55 @@ class locked_cached_property(object):
     """
 
     def __init__(self,func,name=None,doc=None):
-        self.__name__ = name or func.__name__
-        self.__module__ = func.__module__
-        self.__doc__ = doc or func.__doc__
-        self.func = func
-        self.lock = RLock()
+        self.__name__=name or func.__name__
+        self.__module__=func.__module__
+        self.__doc__=doc or func.__doc__
+        self.func=func
+        self.lock=RLock()
 
     def __get__(self,obj,type=None):
         if obj is None:
             return self
         with self.lock:
-            value = obj.__dict__.get(self.__name__,_missing)
+            value=obj.__dict__.get(self.__name__,_missing)
             if value is _missing:
-                value = self.func(obj)
-                obj.__dict__[self.__name__] = value
+                value=self.func(obj)
+                obj.__dict__[self.__name__]=value
             return value
 
 
 class _PackageBoundObject(object):
     #: The name of the package or module that this app belongs to. Do not
     #: change this once it is set by the constructor.
-    import_name = None
+    import_name=None
 
     #: Location of the template files to be added to the template lookup.
     #: ``None`` if templates should not be added.
-    template_folder = None
+    template_folder=None
 
     #: Absolute path to the package on the filesystem. Used to look up
     #: resources contained in the package.
-    root_path = None
+    root_path=None
 
     def __init__(self,import_name,template_folder=None,root_path=None):
-        self.import_name = import_name
-        self.template_folder = template_folder
+        self.import_name=import_name
+        self.template_folder=template_folder
 
         if root_path is None:
-            root_path = get_root_path(self.import_name)
+            root_path=get_root_path(self.import_name)
 
-        self.root_path = root_path
-        self._static_folder = None
-        self._static_url_path = None
+        self.root_path=root_path
+        self._static_folder=None
+        self._static_url_path=None
 
     def _get_static_folder(self):
         if self._static_folder is not None:
             return os.path.join(self.root_path,self._static_folder)
 
     def _set_static_folder(self,value):
-        self._static_folder = value
+        self._static_folder=value
 
-    static_folder = property(
+    static_folder=property(
         _get_static_folder,_set_static_folder,
         doc='The absolute path to the configured static folder.'
     )
@@ -912,9 +912,9 @@ class _PackageBoundObject(object):
             return '/' + os.path.basename(self.static_folder)
 
     def _set_static_url_path(self,value):
-        self._static_url_path = value
+        self._static_url_path=value
 
-    static_url_path = property(
+    static_url_path=property(
         _get_static_url_path,_set_static_url_path,
         doc='The URL prefix that the static route will be registered for.'
     )
@@ -975,7 +975,7 @@ class _PackageBoundObject(object):
             raise RuntimeError('No static folder for this object')
         # Ensure get_send_file_max_age is called in all cases.
         # Here,we ensure get_send_file_max_age is called for Blueprints.
-        cache_timeout = self.get_send_file_max_age(filename)
+        cache_timeout=self.get_send_file_max_age(filename)
         return send_from_directory(self.static_folder,filename,
                                    cache_timeout=cache_timeout)
 
@@ -995,7 +995,7 @@ class _PackageBoundObject(object):
         following::
 
             with app.open_resource('schema.sql') as f:
-                contents = f.read()
+                contents=f.read()
                 do_something_with(contents)
 
         :param resource: the name of the resource.  To access resources within

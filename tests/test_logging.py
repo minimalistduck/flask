@@ -19,23 +19,23 @@ from flask.logging import default_handler,has_level_handler,\
 
 @pytest.fixture(autouse=True)
 def reset_logging(pytestconfig):
-    root_handlers = logging.root.handlers[:]
-    logging.root.handlers = []
-    root_level = logging.root.level
+    root_handlers=logging.root.handlers[:]
+    logging.root.handlers=[]
+    root_level=logging.root.level
 
-    logger = logging.getLogger('flask.app')
-    logger.handlers = []
+    logger=logging.getLogger('flask.app')
+    logger.handlers=[]
     logger.setLevel(logging.NOTSET)
 
-    logging_plugin = pytestconfig.pluginmanager.unregister(
+    logging_plugin=pytestconfig.pluginmanager.unregister(
         name='logging-plugin')
 
     yield
 
-    logging.root.handlers[:] = root_handlers
+    logging.root.handlers[:]=root_handlers
     logging.root.setLevel(root_level)
 
-    logger.handlers = []
+    logger.handlers=[]
     logger.setLevel(logging.NOTSET)
 
     if logging_plugin:
@@ -49,7 +49,7 @@ def test_logger(app):
 
 
 def test_logger_debug(app):
-    app.debug = True
+    app.debug=True
     assert app.logger.level == logging.DEBUG
     assert app.logger.handlers == [default_handler]
 
@@ -66,7 +66,7 @@ def test_wsgi_errors_stream(app,client):
         app.logger.error('test')
         return ''
 
-    stream = StringIO()
+    stream=StringIO()
     client.get('/',errors_stream=stream)
     assert 'ERROR in test_logging: test' in stream.getvalue()
 
@@ -77,16 +77,16 @@ def test_wsgi_errors_stream(app,client):
 
 
 def test_has_level_handler():
-    logger = logging.getLogger('flask.app')
+    logger=logging.getLogger('flask.app')
     assert not has_level_handler(logger)
 
-    handler = logging.StreamHandler()
+    handler=logging.StreamHandler()
     logging.root.addHandler(handler)
     assert has_level_handler(logger)
 
-    logger.propagate = False
+    logger.propagate=False
     assert not has_level_handler(logger)
-    logger.propagate = True
+    logger.propagate=True
 
     handler.setLevel(logging.ERROR)
     assert not has_level_handler(logger)
@@ -97,11 +97,11 @@ def test_log_view_exception(app,client):
     def index():
         raise Exception('test')
 
-    app.testing = False
-    stream = StringIO()
-    rv = client.get('/',errors_stream=stream)
+    app.testing=False
+    stream=StringIO()
+    rv=client.get('/',errors_stream=stream)
     assert rv.status_code == 500
     assert rv.data
-    err = stream.getvalue()
+    err=stream.getvalue()
     assert 'Exception on / [GET]' in err
     assert 'Exception: test' in err

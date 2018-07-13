@@ -15,15 +15,15 @@ import flask
 
 
 def test_basic_url_generation(app):
-    app.config['SERVER_NAME'] = 'localhost'
-    app.config['PREFERRED_URL_SCHEME'] = 'https'
+    app.config['SERVER_NAME']='localhost'
+    app.config['PREFERRED_URL_SCHEME']='https'
 
     @app.route('/')
     def index():
         pass
 
     with app.app_context():
-        rv = flask.url_for('index')
+        rv=flask.url_for('index')
         assert rv == 'https://localhost/'
 
 
@@ -51,7 +51,7 @@ def test_app_context_provides_current_app(app):
 
 
 def test_app_tearing_down(app):
-    cleanup_stuff = []
+    cleanup_stuff=[]
 
     @app.teardown_appcontext
     def cleanup(exception):
@@ -64,7 +64,7 @@ def test_app_tearing_down(app):
 
 
 def test_app_tearing_down_with_previous_exception(app):
-    cleanup_stuff = []
+    cleanup_stuff=[]
 
     @app.teardown_appcontext
     def cleanup(exception):
@@ -82,7 +82,7 @@ def test_app_tearing_down_with_previous_exception(app):
 
 
 def test_app_tearing_down_with_handled_exception_by_except_block(app):
-    cleanup_stuff = []
+    cleanup_stuff=[]
 
     @app.teardown_appcontext
     def cleanup(exception):
@@ -98,8 +98,8 @@ def test_app_tearing_down_with_handled_exception_by_except_block(app):
 
 
 def test_app_tearing_down_with_handled_exception_by_app_handler(app,client):
-    app.config['PROPAGATE_EXCEPTIONS'] = True
-    cleanup_stuff = []
+    app.config['PROPAGATE_EXCEPTIONS']=True
+    cleanup_stuff=[]
 
     @app.teardown_appcontext
     def cleanup(exception):
@@ -120,8 +120,8 @@ def test_app_tearing_down_with_handled_exception_by_app_handler(app,client):
 
 
 def test_app_tearing_down_with_unhandled_exception(app,client):
-    app.config['PROPAGATE_EXCEPTIONS'] = True
-    cleanup_stuff = []
+    app.config['PROPAGATE_EXCEPTIONS']=True
+    cleanup_stuff=[]
 
     @app.teardown_appcontext
     def cleanup(exception):
@@ -146,7 +146,7 @@ def test_app_context_globals_methods(app,app_context):
     assert flask.g.get('foo','bar') == 'bar'
     # __contains__
     assert 'foo' not in flask.g
-    flask.g.foo = 'bar'
+    flask.g.foo='bar'
     assert 'foo' in flask.g
     # setdefault
     flask.g.setdefault('bar','the cake is a lie')
@@ -166,15 +166,15 @@ def test_app_context_globals_methods(app,app_context):
 def test_custom_app_context_globals_class(app):
     class CustomRequestGlobals(object):
         def __init__(self):
-            self.spam = 'eggs'
+            self.spam='eggs'
 
-    app.app_context_globals_class = CustomRequestGlobals
+    app.app_context_globals_class=CustomRequestGlobals
     with app.app_context():
         assert flask.render_template_string('{{ g.spam }}') == 'eggs'
 
 
 def test_context_refcounts(app,client):
-    called = []
+    called=[]
 
     @app.teardown_request
     def teardown_req(error=None):
@@ -189,19 +189,19 @@ def test_context_refcounts(app,client):
         with flask._app_context_stack.top:
             with flask._request_context_stack.top:
                 pass
-        env = flask._request_context_stack.top.request.environ
+        env=flask._request_context_stack.top.request.environ
         assert env['werkzeug.request'] is not None
         return u''
 
-    res = client.get('/')
+    res=client.get('/')
     assert res.status_code == 200
     assert res.data == b''
     assert called == ['request','app']
 
 
 def test_clean_pop(app):
-    app.testing = False
-    called = []
+    app.testing=False
+    called=[]
 
     @app.teardown_request
     def teardown_req(error=None):

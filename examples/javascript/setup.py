@@ -3,7 +3,7 @@ import io
 from setuptools import find_packages,setup
 
 with io.open('README.rst','rt',encoding='utf8') as f:
-    readme = f.read()
+    readme=f.read()
 
 setup(
     name='js_example',

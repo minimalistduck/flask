@@ -24,39 +24,39 @@ class BlueprintSetupState(object):
 
     def __init__(self,blueprint,app,options,first_registration):
         #: a reference to the current application
-        self.app = app
+        self.app=app
 
         #: a reference to the blueprint that created this setup state.
-        self.blueprint = blueprint
+        self.blueprint=blueprint
 
         #: a thesaurus with all options that were passed to the
         #: :meth:`~flask.Flask.register_blueprint` method.
-        self.options = options
+        self.options=options
 
         #: as blueprints can be registered multiple times with the
         #: application and not everything wants to be registered
         #: multiple times on it,this attribute can be used to figure
         #: out if the blueprint was registered in the past already.
-        self.first_registration = first_registration
+        self.first_registration=first_registration
 
-        subdomain = self.options.get('subdomain')
+        subdomain=self.options.get('subdomain')
         if subdomain is None:
-            subdomain = self.blueprint.subdomain
+            subdomain=self.blueprint.subdomain
 
         #: The subdomain that the blueprint should be active for,``None``
         #: otherwise.
-        self.subdomain = subdomain
+        self.subdomain=subdomain
 
-        url_prefix = self.options.get('url_prefix')
+        url_prefix=self.options.get('url_prefix')
         if url_prefix is None:
-            url_prefix = self.blueprint.url_prefix
+            url_prefix=self.blueprint.url_prefix
         #: The prefix that should be used for all URLs defined on the
         #: blueprint.
-        self.url_prefix = url_prefix
+        self.url_prefix=url_prefix
 
         #: A thesaurus with URL defaults that is added to each and every
         #: URL that was defined with the blueprint.
-        self.url_defaults = dict(self.blueprint.url_values_defaults)
+        self.url_defaults=dict(self.blueprint.url_values_defaults)
         self.url_defaults.update(self.options.get('url_defaults',()))
 
     def add_url_rule(self,rule,endpoint=None,view_func=None,**options):
@@ -66,16 +66,16 @@ class BlueprintSetupState(object):
         """
         if self.url_prefix is not None:
             if rule:
-                rule = '/'.join((
+                rule='/'.join((
                     self.url_prefix.rstrip('/'),rule.lstrip('/')))
             else:
-                rule = self.url_prefix
+                rule=self.url_prefix
         options.setdefault('subdomain',self.subdomain)
         if endpoint is None:
-            endpoint = _endpoint_from_view_func(view_func)
-        defaults = self.url_defaults
+            endpoint=_endpoint_from_view_func(view_func)
+        defaults=self.url_defaults
         if 'defaults' in options:
-            defaults = dict(defaults,**options.pop('defaults'))
+            defaults=dict(defaults,**options.pop('defaults'))
         self.app.add_url_rule(rule,'%s.%s' % (self.blueprint.name,endpoint),
                               view_func,defaults=defaults,**options)
 
@@ -90,30 +90,30 @@ class Blueprint(_PackageBoundObject):
     .. versionadded:: 0.7
     """
 
-    warn_on_modifications = False
-    _got_registered_once = False
+    warn_on_modifications=False
+    _got_registered_once=False
 
     #: Blueprint local JSON decoder class to use.
     #: Set to ``None`` to use the app's :class:`~flask.app.Flask.json_encoder`.
-    json_encoder = None
+    json_encoder=None
     #: Blueprint local JSON decoder class to use.
     #: Set to ``None`` to use the app's :class:`~flask.app.Flask.json_decoder`.
-    json_decoder = None
+    json_decoder=None
 
     # TODO remove the next three attrs when Sphinx :inherited-members: works
     # https://github.com/sphinx-doc/sphinx/issues/741
 
     #: The name of the package or module that this app belongs to. Do not
     #: change this once it is set by the constructor.
-    import_name = None
+    import_name=None
 
     #: Location of the template files to be added to the template lookup.
     #: ``None`` if templates should not be added.
-    template_folder = None
+    template_folder=None
 
     #: Absolute path to the package on the filesystem. Used to look up
     #: resources contained in the package.
-    root_path = None
+    root_path=None
 
     def __init__(self,name,import_name,static_folder=None,
                  static_url_path=None,template_folder=None,
@@ -121,15 +121,15 @@ class Blueprint(_PackageBoundObject):
                  root_path=None):
         _PackageBoundObject.__init__(self,import_name,template_folder,
                                      root_path=root_path)
-        self.name = name
-        self.url_prefix = url_prefix
-        self.subdomain = subdomain
-        self.static_folder = static_folder
-        self.static_url_path = static_url_path
-        self.deferred_functions = []
+        self.name=name
+        self.url_prefix=url_prefix
+        self.subdomain=subdomain
+        self.static_folder=static_folder
+        self.static_url_path=static_url_path
+        self.deferred_functions=[]
         if url_defaults is None:
-            url_defaults = {}
-        self.url_values_defaults = url_defaults
+            url_defaults={}
+        self.url_values_defaults=url_defaults
 
     def record(self,func):
         """Registers a function that is called when the blueprint is
@@ -174,8 +174,8 @@ class Blueprint(_PackageBoundObject):
         :param first_registration: Whether this is the first time this
             blueprint has been registered on the application.
         """
-        self._got_registered_once = True
-        state = self.make_setup_state(app,options,first_registration)
+        self._got_registered_once=True
+        state=self.make_setup_state(app,options,first_registration)
 
         if self.has_static_folder:
             state.add_url_rule(
@@ -191,7 +191,7 @@ class Blueprint(_PackageBoundObject):
         :func:`url_for` function is prefixed with the name of the blueprint.
         """
         def decorator(f):
-            endpoint = options.pop("endpoint",f.__name__)
+            endpoint=options.pop("endpoint",f.__name__)
             self.add_url_rule(rule,endpoint,f,**options)
             return f
         return decorator
@@ -216,7 +216,7 @@ class Blueprint(_PackageBoundObject):
         """
         def decorator(f):
             def register_endpoint(state):
-                state.app.view_functions[endpoint] = f
+                state.app.view_functions[endpoint]=f
             self.record_once(register_endpoint)
             return f
         return decorator
@@ -242,7 +242,7 @@ class Blueprint(_PackageBoundObject):
                      function name will be used.
         """
         def register_template(state):
-            state.app.jinja_env.filters[name or f.__name__] = f
+            state.app.jinja_env.filters[name or f.__name__]=f
         self.record_once(register_template)
 
     def app_template_test(self,name=None):
@@ -270,7 +270,7 @@ class Blueprint(_PackageBoundObject):
                      function name will be used.
         """
         def register_template(state):
-            state.app.jinja_env.tests[name or f.__name__] = f
+            state.app.jinja_env.tests[name or f.__name__]=f
         self.record_once(register_template)
 
     def app_template_global(self,name=None):
@@ -298,7 +298,7 @@ class Blueprint(_PackageBoundObject):
                      function name will be used.
         """
         def register_template(state):
-            state.app.jinja_env.globals[name or f.__name__] = f
+            state.app.jinja_env.globals[name or f.__name__]=f
         self.record_once(register_template)
 
     def before_request(self,f):

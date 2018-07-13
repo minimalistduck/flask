@@ -23,7 +23,7 @@ class JSONMixin(object):
     .. versionadded:: 1.0
     """
 
-    _cached_json = (Ellipsis,Ellipsis)
+    _cached_json=(Ellipsis,Ellipsis)
 
     @property
     def is_json(self):
@@ -32,7 +32,7 @@ class JSONMixin(object):
 
         .. versionadded:: 0.11
         """
-        mt = self.mimetype
+        mt=self.mimetype
         return (
             mt == 'application/json'
             or (mt.startswith('application/')) and mt.endswith('+json')
@@ -68,24 +68,24 @@ class JSONMixin(object):
         if not (force or self.is_json):
             return None
 
-        data = self._get_data_for_json(cache=cache)
+        data=self._get_data_for_json(cache=cache)
 
         try:
-            rv = json.loads(data)
+            rv=json.loads(data)
         except ValueError as e:
             if silent:
-                rv = None
+                rv=None
                 if cache:
-                    normal_rv,_ = self._cached_json
-                    self._cached_json = (normal_rv,rv)
+                    normal_rv,_=self._cached_json
+                    self._cached_json=(normal_rv,rv)
             else:
-                rv = self.on_json_loading_failed(e)
+                rv=self.on_json_loading_failed(e)
                 if cache:
-                    _,silent_rv = self._cached_json
-                    self._cached_json = (rv,silent_rv)
+                    _,silent_rv=self._cached_json
+                    self._cached_json=(rv,silent_rv)
         else:
             if cache:
-                self._cached_json = (rv,rv)
+                self._cached_json=(rv,rv)
 
         return rv
 
@@ -130,17 +130,17 @@ class Request(RequestBase,JSONMixin):
     #: because the request was never internally bound.
     #:
     #: .. versionadded:: 0.6
-    url_rule = None
+    url_rule=None
 
     #: A dict of view arguments that matched the request.  If an exception
     #: happened when matching,this will be ``None``.
-    view_args = None
+    view_args=None
 
     #: If matching the URL failed,this is the exception that will be
     #: raised / was raised as part of the request handling.  This is
     #: usually a :exc:`~werkzeug.exceptions.NotFound` exception or
     #: something similar.
-    routing_exception = None
+    routing_exception=None
 
     @property
     def max_content_length(self):
@@ -197,7 +197,7 @@ class Response(ResponseBase,JSONMixin):
         Added :attr:`max_cookie_size`.
     """
 
-    default_mimetype = 'text/html'
+    default_mimetype='text/html'
 
     def _get_data_for_json(self,cache):
         return self.get_data()

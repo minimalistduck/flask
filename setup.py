@@ -7,10 +7,10 @@ from collections import OrderedDict
 from setuptools import setup
 
 with io.open('README.rst','rt',encoding='utf8') as f:
-    readme = f.read()
+    readme=f.read()
 
 with io.open('flask/__init__.py','rt',encoding='utf8') as f:
-    version = re.search(r'__version__ = \'(.*?)\'',f.read()).group(1)
+    version=re.search(r'__version__=\'(.*?)\'',f.read()).group(1)
 
 setup(
     name='Flask',
@@ -76,7 +76,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'flask = flask.cli:main',
+            'flask=flask.cli:main',
         ],
     },
 )

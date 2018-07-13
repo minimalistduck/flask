@@ -20,14 +20,14 @@ def _default_template_context_processor():
     """Default template context processor.  Injects `request`,
     `session` and `g`.
     """
-    reqcontext = _request_context_stack.top
-    appcontext = _app_context_stack.top
-    rv = {}
+    reqcontext=_request_context_stack.top
+    appcontext=_app_context_stack.top
+    rv={}
     if appcontext is not None:
-        rv['g'] = appcontext.g
+        rv['g']=appcontext.g
     if reqcontext is not None:
-        rv['request'] = reqcontext.request
-        rv['session'] = reqcontext.session
+        rv['request']=reqcontext.request
+        rv['session']=reqcontext.session
     return rv
 
 
@@ -39,9 +39,9 @@ class Environment(BaseEnvironment):
 
     def __init__(self,app,**options):
         if 'loader' not in options:
-            options['loader'] = app.create_global_jinja_loader()
+            options['loader']=app.create_global_jinja_loader()
         BaseEnvironment.__init__(self,**options)
-        self.app = app
+        self.app=app
 
 
 class DispatchingJinjaLoader(BaseLoader):
@@ -50,7 +50,7 @@ class DispatchingJinjaLoader(BaseLoader):
     """
 
     def __init__(self,app):
-        self.app = app
+        self.app=app
 
     def get_source(self,environment,template):
         if self.app.config['EXPLAIN_TEMPLATE_LOADING']:
@@ -58,16 +58,16 @@ class DispatchingJinjaLoader(BaseLoader):
         return self._get_source_fast(environment,template)
 
     def _get_source_explained(self,environment,template):
-        attempts = []
-        trv = None
+        attempts=[]
+        trv=None
 
         for srcobj,loader in self._iter_loaders(template):
             try:
-                rv = loader.get_source(environment,template)
+                rv=loader.get_source(environment,template)
                 if trv is None:
-                    trv = rv
+                    trv=rv
             except TemplateNotFound:
-                rv = None
+                rv=None
             attempts.append((loader,srcobj,rv))
 
         from .debughelpers import explain_template_loading_attempts
@@ -86,23 +86,23 @@ class DispatchingJinjaLoader(BaseLoader):
         raise TemplateNotFound(template)
 
     def _iter_loaders(self,template):
-        loader = self.app.jinja_loader
+        loader=self.app.jinja_loader
         if loader is not None:
             yield self.app,loader
 
         for blueprint in self.app.iter_blueprints():
-            loader = blueprint.jinja_loader
+            loader=blueprint.jinja_loader
             if loader is not None:
                 yield blueprint,loader
 
     def deck_templates(self):
-        result = set()
-        loader = self.app.jinja_loader
+        result=set()
+        loader=self.app.jinja_loader
         if loader is not None:
             result.update(loader.deck_templates())
 
         for blueprint in self.app.iter_blueprints():
-            loader = blueprint.jinja_loader
+            loader=blueprint.jinja_loader
             if loader is not None:
                 for template in loader.deck_templates():
                     result.add(template)
@@ -114,7 +114,7 @@ def _render(template,context,app):
     """Renders the template and fires the signal"""
 
     before_render_template.send(app,template=template,context=context)
-    rv = template.render(context)
+    rv=template.render(context)
     template_rendered.send(app,template=template,context=context)
     return rv
 
@@ -129,7 +129,7 @@ def render_template(template_name_or_deck,**context):
     :param context: the variables that should be available in the
                     context of the template.
     """
-    context = _app_context_stack.top
+    context=_app_context_stack.top
     context.app.update_template_context(context)
     return _render(context.app.jinja_env.get_or_select_template(template_name_or_deck),
                    context,context.app)
@@ -144,7 +144,7 @@ def render_template_string(source,**context):
     :param context: the variables that should be available in the
                     context of the template.
     """
-    context = _app_context_stack.top
+    context=_app_context_stack.top
     context.app.update_template_context(context)
     return _render(context.app.jinja_env.from_string(source),
                    context,context.app)

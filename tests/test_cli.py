@@ -30,8 +30,8 @@ from flask.cli import (
     with_appcontext
 )
 
-cwd = os.getcwd()
-test_path = os.path.abspath(os.path.join(
+cwd=os.getcwd()
+test_path=os.path.abspath(os.path.join(
     os.path.dirname(__file__),'test_apps'
 ))
 
@@ -49,20 +49,20 @@ def test_cli_name(test_apps):
 
 def test_find_best_app(test_apps):
     """Test if `find_best_app` behaves as expected with different combinations of input."""
-    script_info = ScriptInfo()
+    script_info=ScriptInfo()
 
     class Module:
-        app = Flask('appname')
+        app=Flask('appname')
 
     assert find_best_app(script_info,Module) == Module.app
 
     class Module:
-        application = Flask('appname')
+        application=Flask('appname')
 
     assert find_best_app(script_info,Module) == Module.application
 
     class Module:
-        myapp = Flask('appname')
+        myapp=Flask('appname')
 
     assert find_best_app(script_info,Module) == Module.myapp
 
@@ -99,7 +99,7 @@ def test_find_best_app(test_apps):
     assert find_best_app(script_info,Module).name == 'appname'
 
     class Module:
-        myapp = Flask('appname1')
+        myapp=Flask('appname1')
 
         @staticmethod
         def create_app():
@@ -108,7 +108,7 @@ def test_find_best_app(test_apps):
     assert find_best_app(script_info,Module) == Module.myapp
 
     class Module:
-        myapp = Flask('appname1')
+        myapp=Flask('appname1')
 
         @staticmethod
         def create_app():
@@ -122,8 +122,8 @@ def test_find_best_app(test_apps):
     pytest.raises(NoAppException,find_best_app,script_info,Module)
 
     class Module:
-        myapp1 = Flask('appname1')
-        myapp2 = Flask('appname2')
+        myapp1=Flask('appname1')
+        myapp2=Flask('appname2')
 
     pytest.raises(NoAppException,find_best_app,script_info,Module)
 
@@ -174,10 +174,10 @@ def test_prepare_import(request,value,path,result):
     of the given import is added to :data:`sys.path`. This is reset after the
     test runs.
     """
-    original_path = sys.path[:]
+    original_path=sys.path[:]
 
     def reset_path():
-        sys.path[:] = original_path
+        sys.path[:]=original_path
 
     request.addfinalizer(reset_path)
 
@@ -201,8 +201,8 @@ def test_prepare_import(request,value,path,result):
     ('cliapp.factory',' create_app () ','app'),
 ))
 def test_locate_app(test_apps,iname,aname,result):
-    info = ScriptInfo()
-    info.data['test'] = 'spam'
+    info=ScriptInfo()
+    info.data['test']='spam'
     assert locate_app(info,iname,aname).name == result
 
 
@@ -222,15 +222,15 @@ def test_locate_app(test_apps,iname,aname,result):
     ('cliapp.message.txt',None),
 ))
 def test_locate_app_raises(test_apps,iname,aname):
-    info = ScriptInfo()
+    info=ScriptInfo()
 
     with pytest.raises(NoAppException):
         locate_app(info,iname,aname)
 
 
 def test_locate_app_suppress_raise():
-    info = ScriptInfo()
-    app = locate_app(info,'notanapp.py',None,raise_if_not_found=False)
+    info=ScriptInfo()
+    app=locate_app(info,'notanapp.py',None,raise_if_not_found=False)
     assert app is None
 
     # only direct import error is suppressed
@@ -246,49 +246,49 @@ def test_get_version(test_apps,capsys):
     from sys import version as py_ver
 
     class MockCtx(object):
-        resilient_parsing = False
-        color = None
+        resilient_parsing=False
+        color=None
 
         def exit(self): return
 
-    context = MockCtx()
+    context=MockCtx()
     get_version(context,None,"test")
-    out,err = capsys.readouterr()
+    out,err=capsys.readouterr()
     assert flask_ver in out
     assert py_ver in out
 
 
 def test_scriptinfo(test_apps,monkeypatch):
     """Test of ScriptInfo."""
-    obj = ScriptInfo(app_import_path="cliapp.app:testapp")
+    obj=ScriptInfo(app_import_path="cliapp.app:testapp")
     assert obj.load_app().name == "testapp"
     assert obj.load_app().name == "testapp"
 
     def create_app(info):
         return Flask("createapp")
 
-    obj = ScriptInfo(create_app=create_app)
-    app = obj.load_app()
+    obj=ScriptInfo(create_app=create_app)
+    app=obj.load_app()
     assert app.name == "createapp"
     assert obj.load_app() == app
 
-    obj = ScriptInfo()
+    obj=ScriptInfo()
     pytest.raises(NoAppException,obj.load_app)
 
     # import app from wsgi.py in current directory
     monkeypatch.chdir(os.path.abspath(os.path.join(
         os.path.dirname(__file__),'test_apps','helloworld'
     )))
-    obj = ScriptInfo()
-    app = obj.load_app()
+    obj=ScriptInfo()
+    app=obj.load_app()
     assert app.name == 'hello'
 
     # import app from app.py in current directory
     monkeypatch.chdir(os.path.abspath(os.path.join(
         os.path.dirname(__file__),'test_apps','cliapp'
     )))
-    obj = ScriptInfo()
-    app = obj.load_app()
+    obj=ScriptInfo()
+    app=obj.load_app()
     assert app.name == 'testapp'
 
 
@@ -300,9 +300,9 @@ def test_with_appcontext(runner):
     def testcmd():
         click.echo(current_app.name)
 
-    obj = ScriptInfo(create_app=lambda info: Flask("testapp"))
+    obj=ScriptInfo(create_app=lambda info: Flask("testapp"))
 
-    result = runner.invoke(testcmd,obj=obj)
+    result=runner.invoke(testcmd,obj=obj)
     assert result.exit_code == 0
     assert result.output == 'testapp\n'
 
@@ -326,13 +326,13 @@ def test_appgroup(runner):
     def test2():
         click.echo(current_app.name)
 
-    obj = ScriptInfo(create_app=lambda info: Flask("testappgroup"))
+    obj=ScriptInfo(create_app=lambda info: Flask("testappgroup"))
 
-    result = runner.invoke(cli,['test'],obj=obj)
+    result=runner.invoke(cli,['test'],obj=obj)
     assert result.exit_code == 0
     assert result.output == 'testappgroup\n'
 
-    result = runner.invoke(cli,['subgroup','test2'],obj=obj)
+    result=runner.invoke(cli,['subgroup','test2'],obj=obj)
     assert result.exit_code == 0
     assert result.output == 'testappgroup\n'
 
@@ -351,7 +351,7 @@ def test_flaskgroup(runner):
     def test():
         click.echo(current_app.name)
 
-    result = runner.invoke(cli,['test'])
+    result=runner.invoke(cli,['test'])
     assert result.exit_code == 0
     assert result.output == 'flaskgroup\n'
 
@@ -361,8 +361,8 @@ def test_flaskgroup_debug(runner,set_debug_flag):
     """Test FlaskGroup debug flag behavior."""
 
     def create_app(info):
-        app = Flask("flaskgroup")
-        app.debug = True
+        app=Flask("flaskgroup")
+        app.debug=True
         return app
 
     @click.group(cls=FlaskGroup,create_app=create_app,set_debug_flag=set_debug_flag)
@@ -373,7 +373,7 @@ def test_flaskgroup_debug(runner,set_debug_flag):
     def test():
         click.echo(str(current_app.debug))
 
-    result = runner.invoke(cli,['test'])
+    result=runner.invoke(cli,['test'])
     assert result.exit_code == 0
     assert result.output == '%s\n' % str(not set_debug_flag)
 
@@ -389,7 +389,7 @@ def test_print_exceptions(runner):
     def cli(**params):
         pass
 
-    result = runner.invoke(cli,['--help'])
+    result=runner.invoke(cli,['--help'])
     assert result.exit_code == 0
     assert 'Exception: oh no' in result.output
     assert 'Traceback' in result.output
@@ -399,8 +399,8 @@ class TestRoutes:
     @pytest.fixture
     def invoke(self,runner):
         def create_app(info):
-            app = Flask(__name__)
-            app.testing = True
+            app=Flask(__name__)
+            app.testing=True
 
             @app.route('/get_post/<int:x>/<int:y>',methods=['GET','POST'])
             def yyy_get_post(x,y):
@@ -412,18 +412,18 @@ class TestRoutes:
 
             return app
 
-        cli = FlaskGroup(create_app=create_app)
+        cli=FlaskGroup(create_app=create_app)
         return partial(runner.invoke,cli)
 
     @pytest.fixture
     def invoke_no_routes(self,runner):
         def create_app(info):
-            app = Flask(__name__,static_folder=None)
-            app.testing = True
+            app=Flask(__name__,static_folder=None)
+            app.testing=True
 
             return app
 
-        cli = FlaskGroup(create_app=create_app)
+        cli=FlaskGroup(create_app=create_app)
         return partial(runner.invoke,cli)
 
     def expect_order(self,order,output):
@@ -433,7 +433,7 @@ class TestRoutes:
             assert line[:len(expect)] == expect
 
     def test_simple(self,invoke):
-        result = invoke(['routes'])
+        result=invoke(['routes'])
         assert result.exit_code == 0
         self.expect_order(
             ['aaa_post','static','yyy_get_post'],
@@ -441,8 +441,8 @@ class TestRoutes:
         )
 
     def test_sort(self,invoke):
-        default_output = invoke(['routes']).output
-        endpoint_output = invoke(['routes','-s','endpoint']).output
+        default_output=invoke(['routes']).output
+        endpoint_output=invoke(['routes','-s','endpoint']).output
         assert default_output == endpoint_output
         self.expect_order(
             ['static','yyy_get_post','aaa_post'],
@@ -458,18 +458,18 @@ class TestRoutes:
         )
 
     def test_all_methods(self,invoke):
-        output = invoke(['routes']).output
+        output=invoke(['routes']).output
         assert 'GET,HEAD,OPTIONS,POST' not in output
-        output = invoke(['routes','--all-methods']).output
+        output=invoke(['routes','--all-methods']).output
         assert 'GET,HEAD,OPTIONS,POST' in output
 
     def test_no_routes(self,invoke_no_routes):
-        result = invoke_no_routes(['routes'])
+        result=invoke_no_routes(['routes'])
         assert result.exit_code == 0
         assert 'No routes were registered.' in result.output
 
 
-need_dotenv = pytest.mark.skipif(
+need_dotenv=pytest.mark.skipif(
     dotenv is None,reason='dotenv is not installed'
 )
 
@@ -499,7 +499,7 @@ def test_dotenv_path(monkeypatch):
     for item in ('FOO','BAR','EGGS'):
         monkeypatch._setitem.append((os.environ,item,notset))
 
-    cwd = os.getcwd()
+    cwd=os.getcwd()
     load_dotenv(os.path.join(test_path,'.flaskenv'))
     assert os.getcwd() == cwd
     assert 'FOO' in os.environ
@@ -529,7 +529,7 @@ def test_run_cert_path():
     with pytest.raises(click.BadParameter):
         run_command.make_context('run',['--key',__file__])
 
-    context = run_command.make_context(
+    context=run_command.make_context(
         'run',['--cert',__file__,'--key',__file__])
     assert context.params['cert'] == (__file__,__file__)
 
@@ -543,7 +543,7 @@ def test_run_cert_adhoc(monkeypatch):
 
     # pyOpenSSL installed
     monkeypatch.setitem(sys.modules,'OpenSSL',types.ModuleType('OpenSSL'))
-    context = run_command.make_context('run',['--cert','adhoc'])
+    context=run_command.make_context('run',['--cert','adhoc'])
     assert context.params['cert'] == 'adhoc'
 
     # no key with adhoc
@@ -565,12 +565,12 @@ def test_run_cert_import(monkeypatch):
 
     # SSLContext
     if sys.version_info < (2,7,9):
-        ssl_context = object()
+        ssl_context=object()
     else:
-        ssl_context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+        ssl_context=ssl.SSLContext(ssl.PROTOCOL_SSLv23)
 
     monkeypatch.setitem(sys.modules,'ssl_context',ssl_context)
-    context = run_command.make_context('run',['--cert','ssl_context'])
+    context=run_command.make_context('run',['--cert','ssl_context'])
     assert context.params['cert'] is ssl_context
 
     # no --key with SSLContext

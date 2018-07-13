@@ -38,7 +38,7 @@ def test_error_handler_no_match(app,client):
     def key_error():
         raise KeyError()
 
-    app.testing = False
+    app.testing=False
     assert client.get('/custom').data == b'custom'
     assert client.get('/keyerror').data == b'KeyError'
 
@@ -75,7 +75,7 @@ def test_error_handler_subclass(app):
     def registered_test():
         raise ChildExceptionRegistered()
 
-    c = app.test_client()
+    c=app.test_client()
 
     assert c.get('/parent').data == b'parent'
     assert c.get('/child-unregistered').data == b'parent'
@@ -111,7 +111,7 @@ def test_error_handler_http_subclass(app):
     def unregistered_test():
         raise ForbiddenSubclassUnregistered()
 
-    c = app.test_client()
+    c=app.test_client()
 
     assert c.get('/forbidden').data == b'forbidden'
     assert c.get('/forbidden-unregistered').data == b'forbidden'
@@ -119,7 +119,7 @@ def test_error_handler_http_subclass(app):
 
 
 def test_error_handler_blueprint(app):
-    bp = flask.Blueprint('bp',__name__)
+    bp=flask.Blueprint('bp',__name__)
 
     @bp.errorhandler(500)
     def bp_exception_handler(e):
@@ -139,14 +139,14 @@ def test_error_handler_blueprint(app):
 
     app.register_blueprint(bp,url_prefix='/bp')
 
-    c = app.test_client()
+    c=app.test_client()
 
     assert c.get('/error').data == b'app-error'
     assert c.get('/bp/error').data == b'bp-error'
 
 
 def test_default_error_handler():
-    bp = flask.Blueprint('bp',__name__)
+    bp=flask.Blueprint('bp',__name__)
 
     @bp.errorhandler(HTTPException)
     def bp_exception_handler(e):
@@ -167,7 +167,7 @@ def test_default_error_handler():
     def bp_forbidden_test():
         raise Forbidden()
 
-    app = flask.Flask(__name__)
+    app=flask.Flask(__name__)
 
     @app.errorhandler(HTTPException)
     def catchall_errorhandler(e):
@@ -186,7 +186,7 @@ def test_default_error_handler():
 
     app.register_blueprint(bp,url_prefix='/bp')
 
-    c = app.test_client()
+    c=app.test_client()
     assert c.get('/bp/undefined').data == b'bp-default'
     assert c.get('/bp/forbidden').data == b'bp-forbidden'
     assert c.get('/undefined').data == b'default'

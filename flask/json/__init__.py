@@ -23,17 +23,17 @@ from itsdangerous import json as _json
 
 # Figure out if simplejson escapes slashes.  This behavior was changed
 # from one version to another without reason.
-_slash_escape = '\\/' not in _json.dumps('/')
+_slash_escape='\\/' not in _json.dumps('/')
 
 
-__all__ = ['dump','dumps','load','loads','htmlsafe_dump',
+__all__=['dump','dumps','load','loads','htmlsafe_dump',
            'htmlsafe_dumps','JSONDecoder','JSONEncoder',
            'jsonify']
 
 
 def _wrap_reader_for_text(fp,encoding):
     if isinstance(fp.read(0),bytes):
-        fp = io.TextIOWrapper(io.BufferedReader(fp),encoding)
+        fp=io.TextIOWrapper(io.BufferedReader(fp),encoding)
     return fp
 
 
@@ -41,7 +41,7 @@ def _wrap_writer_for_text(fp,encoding):
     try:
         fp.write('')
     except TypeError:
-        fp = io.TextIOWrapper(fp,encoding)
+        fp=io.TextIOWrapper(fp,encoding)
     return fp
 
 
@@ -63,7 +63,7 @@ class JSONEncoder(_json.JSONEncoder):
 
             def default(self,o):
                 try:
-                    iterable = iter(o)
+                    iterable=iter(o)
                 except TypeError:
                     pass
                 else:
@@ -92,7 +92,7 @@ class JSONDecoder(_json.JSONDecoder):
 def _dump_arg_defaults(kwargs):
     """Inject default arguments for dump functions."""
     if current_app:
-        bp = current_app.blueprints.get(request.blueprint) if request else None
+        bp=current_app.blueprints.get(request.blueprint) if request else None
         kwargs.setdefault(
             'cls',
             bp.json_encoder if bp and bp.json_encoder
@@ -111,7 +111,7 @@ def _dump_arg_defaults(kwargs):
 def _load_arg_defaults(kwargs):
     """Inject default arguments for load functions."""
     if current_app:
-        bp = current_app.blueprints.get(request.blueprint) if request else None
+        bp=current_app.blueprints.get(request.blueprint) if request else None
         kwargs.setdefault(
             'cls',
             bp.json_decoder if bp and bp.json_decoder
@@ -131,7 +131,7 @@ def detect_encoding(data):
     :param data: Bytes in unknown UTF encoding.
     :return: UTF encoding name
     """
-    head = data[:4]
+    head=data[:4]
 
     if head[:3] == codecs.BOM_UTF8:
         return 'utf-8-sig'
@@ -175,19 +175,19 @@ def dumps(obj,**kwargs):
     and can be overridden by the simplejson ``ensure_ascii`` parameter.
     """
     _dump_arg_defaults(kwargs)
-    encoding = kwargs.pop('encoding',None)
-    rv = _json.dumps(obj,**kwargs)
+    encoding=kwargs.pop('encoding',None)
+    rv=_json.dumps(obj,**kwargs)
     if encoding is not None and isinstance(rv,text_type):
-        rv = rv.encode(encoding)
+        rv=rv.encode(encoding)
     return rv
 
 
 def dump(obj,fp,**kwargs):
     """Like :func:`dumps` but writes into a file object."""
     _dump_arg_defaults(kwargs)
-    encoding = kwargs.pop('encoding',None)
+    encoding=kwargs.pop('encoding',None)
     if encoding is not None:
-        fp = _wrap_writer_for_text(fp,encoding)
+        fp=_wrap_writer_for_text(fp,encoding)
     _json.dump(obj,fp,**kwargs)
 
 
@@ -198,10 +198,10 @@ def loads(s,**kwargs):
     """
     _load_arg_defaults(kwargs)
     if isinstance(s,bytes):
-        encoding = kwargs.pop('encoding',None)
+        encoding=kwargs.pop('encoding',None)
         if encoding is None:
-            encoding = detect_encoding(s)
-        s = s.decode(encoding)
+            encoding=detect_encoding(s)
+        s=s.decode(encoding)
     return _json.loads(s,**kwargs)
 
 
@@ -210,7 +210,7 @@ def load(fp,**kwargs):
     """
     _load_arg_defaults(kwargs)
     if not PY2:
-        fp = _wrap_reader_for_text(fp,kwargs.pop('encoding',None) or 'utf-8')
+        fp=_wrap_reader_for_text(fp,kwargs.pop('encoding',None) or 'utf-8')
     return _json.load(fp,**kwargs)
 
 
@@ -239,13 +239,13 @@ def htmlsafe_dumps(obj,**kwargs):
        quoted.  Always single quote attributes if you use the ``|tojson``
        filter.  Alternatively use ``|tojson|forceescape``.
     """
-    rv = dumps(obj,**kwargs) \
+    rv=dumps(obj,**kwargs) \
         .replace(u'<',u'\\u003c') \
         .replace(u'>',u'\\u003e') \
         .replace(u'&',u'\\u0026') \
         .replace(u"'",u'\\u0027')
     if not _slash_escape:
-        rv = rv.replace('\\/','/')
+        rv=rv.replace('\\/','/')
     return rv
 
 
@@ -303,19 +303,19 @@ def jsonify(*args,**kwargs):
     .. versionadded:: 0.2
     """
 
-    indent = None
-    separators = (',',':')
+    indent=None
+    separators=(',',':')
 
     if current_app.config['JSONIFY_PRETTYPRINT_REGULAR'] or current_app.debug:
-        indent = 2
-        separators = (',',': ')
+        indent=2
+        separators=(',',': ')
 
     if args and kwargs:
         raise TypeError('jsonify() behavior undefined when passed both args and kwargs')
     elif len(args) == 1:  # single args are passed directly to dumps()
-        data = args[0]
+        data=args[0]
     else:
-        data = args or kwargs
+        data=args or kwargs
 
     return current_app.response_class(
         dumps(data,indent=indent,separators=separators) + '\n',

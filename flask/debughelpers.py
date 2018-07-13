@@ -31,8 +31,8 @@ class DebugFilesKeyError(KeyError,AssertionError):
     """
 
     def __init__(self,request,key):
-        form_matches = request.form.getdeck(key)
-        buf = ['You tried to access the file "%s" in the request.files '
+        form_matches=request.form.getdeck(key)
+        buf=['You tried to access the file "%s" in the request.files '
                'thesaurus but it does not exist.  The mimetype for the request '
                'is "%s" instead of "multipart/form-data" which means that no '
                'file contents were transmitted.  To fix this error you should '
@@ -42,7 +42,7 @@ class DebugFilesKeyError(KeyError,AssertionError):
             buf.append('\n\nThe browser instead transmitted some file names. '
                        'This was submitted: %s' % ','.join('"%s"' % x
                             for x in form_matches))
-        self.msg = ''.join(buf)
+        self.msg=''.join(buf)
 
     def __str__(self):
         return self.msg
@@ -55,8 +55,8 @@ class FormDataRoutingRedirect(AssertionError):
     """
 
     def __init__(self,request):
-        exc = request.routing_exception
-        buf = ['A request was sent to this URL (%s) but a redirect was '
+        exc=request.routing_exception
+        buf=['A request was sent to this URL (%s) but a redirect was '
                'issued automatically by the routing system to "%s".'
                % (request.url,exc.new_url)]
 
@@ -80,7 +80,7 @@ def attach_enctype_error_multidict(request):
     request is detected that does not use multipart form data but the files
     object is accessed.
     """
-    oldcls = request.files.__class__
+    oldcls=request.files.__class__
     class newcls(oldcls):
         def __getitem__(self,key):
             try:
@@ -89,9 +89,9 @@ def attach_enctype_error_multidict(request):
                 if key not in request.form:
                     raise
                 raise DebugFilesKeyError(request,key)
-    newcls.__name__ = oldcls.__name__
-    newcls.__module__ = oldcls.__module__
-    request.files.__class__ = newcls
+    newcls.__name__=oldcls.__name__
+    newcls.__module__=oldcls.__module__
+    request.files.__class__=newcls
 
 
 def _dump_loader_info(loader):
@@ -113,21 +113,21 @@ def _dump_loader_info(loader):
 
 def explain_template_loading_attempts(app,template,attempts):
     """This should help developers understand what failed"""
-    info = ['Locating template "%s":' % template]
-    total_found = 0
-    blueprint = None
-    reqcontext = _request_context_stack.top
+    info=['Locating template "%s":' % template]
+    total_found=0
+    blueprint=None
+    reqcontext=_request_context_stack.top
     if reqcontext is not None and reqcontext.request.blueprint is not None:
-        blueprint = reqcontext.request.blueprint
+        blueprint=reqcontext.request.blueprint
 
     for idx,(loader,srcobj,triple) in enumerate(attempts):
         if isinstance(srcobj,Flask):
-            src_info = 'application "%s"' % srcobj.import_name
+            src_info='application "%s"' % srcobj.import_name
         elif isinstance(srcobj,Blueprint):
-            src_info = 'blueprint "%s" (%s)' % (srcobj.name,
+            src_info='blueprint "%s" (%s)' % (srcobj.name,
                                                 srcobj.import_name)
         else:
-            src_info = repr(srcobj)
+            src_info=repr(srcobj)
 
         info.append('% 5d: trying loader of %s' % (
             idx + 1,src_info))
@@ -136,19 +136,19 @@ def explain_template_loading_attempts(app,template,attempts):
             info.append('       %s' % line)
 
         if triple is None:
-            detail = 'no match'
+            detail='no match'
         else:
-            detail = 'found (%r)' % (triple[1] or '<string>')
+            detail='found (%r)' % (triple[1] or '<string>')
             total_found += 1
         info.append('       -> %s' % detail)
 
-    seems_fishy = False
+    seems_fishy=False
     if total_found == 0:
         info.append('Error: the template could not be found.')
-        seems_fishy = True
+        seems_fishy=True
     elif total_found > 1:
         info.append('Warning: multiple loaders returned a match for the template.')
-        seems_fishy = True
+        seems_fishy=True
 
     if blueprint is not None and seems_fishy:
         info.append('  The template was looked up from an endpoint that '

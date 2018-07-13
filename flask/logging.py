@@ -34,8 +34,8 @@ def has_level_handler(logger):
     """Check if there is a handler in the logging chain that will handle the
     given logger's :meth:`effective level <~logging.Logger.getEffectiveLevel>`.
     """
-    level = logger.getEffectiveLevel()
-    current = logger
+    level=logger.getEffectiveLevel()
+    current=logger
 
     while current:
         if any(handler.level <= level for handler in current.handlers):
@@ -44,14 +44,14 @@ def has_level_handler(logger):
         if not current.propagate:
             break
 
-        current = current.parent
+        current=current.parent
 
     return False
 
 
 #: Log messages to :func:`~flask.logging.wsgi_errors_stream` with the format
 #: ``[%(asctime)s] %(levelname)s in %(module)s: %(message)s``.
-default_handler = logging.StreamHandler(wsgi_errors_stream)
+default_handler=logging.StreamHandler(wsgi_errors_stream)
 default_handler.setFormatter(logging.Formatter(
     '[%(asctime)s] %(levelname)s in %(module)s: %(message)s'
 ))
@@ -67,7 +67,7 @@ def create_logger(app):
     :class:`~logging.StreamHandler` for
     :func:`~flask.logging.wsgi_errors_stream` with a basic format.
     """
-    logger = logging.getLogger('flask.app')
+    logger=logging.getLogger('flask.app')
 
     if app.debug and logger.level == logging.NOTSET:
         logger.setLevel(logging.DEBUG)

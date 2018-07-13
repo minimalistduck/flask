@@ -20,9 +20,9 @@ from jinja2 import TemplateNotFound
 
 
 def test_blueprint_specific_error_handling(app,client):
-    frontend = flask.Blueprint('frontend',__name__)
-    backend = flask.Blueprint('backend',__name__)
-    sideend = flask.Blueprint('sideend',__name__)
+    frontend=flask.Blueprint('frontend',__name__)
+    backend=flask.Blueprint('backend',__name__)
+    sideend=flask.Blueprint('sideend',__name__)
 
     @frontend.errorhandler(403)
     def frontend_forbidden(e):
@@ -64,7 +64,7 @@ def test_blueprint_specific_user_error_handling(app,client):
     class MyFunctionException(Exception):
         pass
 
-    blue = flask.Blueprint('blue',__name__)
+    blue=flask.Blueprint('blue',__name__)
 
     @blue.errorhandler(MyDecoratorException)
     def my_decorator_exception_handler(e):
@@ -92,7 +92,7 @@ def test_blueprint_specific_user_error_handling(app,client):
 
 
 def test_blueprint_app_error_handling(app,client):
-    errors = flask.Blueprint('errors',__name__)
+    errors=flask.Blueprint('errors',__name__)
 
     @errors.app_errorhandler(403)
     def forbidden_handler(e):
@@ -102,7 +102,7 @@ def test_blueprint_app_error_handling(app,client):
     def app_forbidden():
         flask.abort(403)
 
-    forbidden_bp = flask.Blueprint('forbidden_bp',__name__)
+    forbidden_bp=flask.Blueprint('forbidden_bp',__name__)
 
     @forbidden_bp.route('/nope')
     def bp_forbidden():
@@ -129,7 +129,7 @@ def test_blueprint_app_error_handling(app,client):
     ('/foo//','/bar','/foo/bar'),
 ))
 def test_blueprint_prefix_slash(app,client,prefix,rule,url):
-    bp = flask.Blueprint('test',__name__,url_prefix=prefix)
+    bp=flask.Blueprint('test',__name__,url_prefix=prefix)
 
     @bp.route(rule)
     def index():
@@ -140,7 +140,7 @@ def test_blueprint_prefix_slash(app,client,prefix,rule,url):
 
 
 def test_blueprint_url_defaults(app,client):
-    bp = flask.Blueprint('test',__name__)
+    bp=flask.Blueprint('test',__name__)
 
     @bp.route('/foo',defaults={'baz': 42})
     def foo(bar,baz):
@@ -160,7 +160,7 @@ def test_blueprint_url_defaults(app,client):
 
 
 def test_blueprint_url_processors(app,client):
-    bp = flask.Blueprint('frontend',__name__,url_prefix='/<lang_code>')
+    bp=flask.Blueprint('frontend',__name__,url_prefix='/<lang_code>')
 
     @bp.url_defaults
     def add_language_code(endpoint,values):
@@ -168,7 +168,7 @@ def test_blueprint_url_processors(app,client):
 
     @bp.url_value_preprocessor
     def pull_lang_code(endpoint,values):
-        flask.g.lang_code = values.pop('lang_code')
+        flask.g.lang_code=values.pop('lang_code')
 
     @bp.route('/')
     def index():
@@ -186,34 +186,34 @@ def test_blueprint_url_processors(app,client):
 
 def test_templates_and_static(test_apps):
     from blueprintapp import app
-    client = app.test_client()
+    client=app.test_client()
 
-    rv = client.get('/')
+    rv=client.get('/')
     assert rv.data == b'Hello from the Frontend'
-    rv = client.get('/admin/')
+    rv=client.get('/admin/')
     assert rv.data == b'Hello from the Admin'
-    rv = client.get('/admin/index2')
+    rv=client.get('/admin/index2')
     assert rv.data == b'Hello from the Admin'
-    rv = client.get('/admin/static/test.txt')
+    rv=client.get('/admin/static/test.txt')
     assert rv.data.strip() == b'Admin File'
     rv.close()
-    rv = client.get('/admin/static/css/test.css')
+    rv=client.get('/admin/static/css/test.css')
     assert rv.data.strip() == b'/* nested file */'
     rv.close()
 
     # try/finally,in case other tests use this app for Blueprint tests.
-    max_age_default = app.config['SEND_FILE_MAX_AGE_DEFAULT']
+    max_age_default=app.config['SEND_FILE_MAX_AGE_DEFAULT']
     try:
-        expected_max_age = 3600
+        expected_max_age=3600
         if app.config['SEND_FILE_MAX_AGE_DEFAULT'] == expected_max_age:
-            expected_max_age = 7200
-        app.config['SEND_FILE_MAX_AGE_DEFAULT'] = expected_max_age
-        rv = client.get('/admin/static/css/test.css')
-        cc = parse_cache_control_header(rv.headers['Cache-Control'])
+            expected_max_age=7200
+        app.config['SEND_FILE_MAX_AGE_DEFAULT']=expected_max_age
+        rv=client.get('/admin/static/css/test.css')
+        cc=parse_cache_control_header(rv.headers['Cache-Control'])
         assert cc.max_age == expected_max_age
         rv.close()
     finally:
-        app.config['SEND_FILE_MAX_AGE_DEFAULT'] = max_age_default
+        app.config['SEND_FILE_MAX_AGE_DEFAULT']=max_age_default
 
     with app.test_request_context():
         assert flask.url_for('admin.static',filename='test.txt') == '/admin/static/test.txt'
@@ -232,34 +232,34 @@ def test_default_static_cache_timeout(app):
         def get_send_file_max_age(self,filename):
             return 100
 
-    blueprint = MyBlueprint('blueprint',__name__,static_folder='static')
+    blueprint=MyBlueprint('blueprint',__name__,static_folder='static')
     app.register_blueprint(blueprint)
 
     # try/finally,in case other tests use this app for Blueprint tests.
-    max_age_default = app.config['SEND_FILE_MAX_AGE_DEFAULT']
+    max_age_default=app.config['SEND_FILE_MAX_AGE_DEFAULT']
     try:
         with app.test_request_context():
-            unexpected_max_age = 3600
+            unexpected_max_age=3600
             if app.config['SEND_FILE_MAX_AGE_DEFAULT'] == unexpected_max_age:
-                unexpected_max_age = 7200
-            app.config['SEND_FILE_MAX_AGE_DEFAULT'] = unexpected_max_age
-            rv = blueprint.send_static_file('index.html')
-            cc = parse_cache_control_header(rv.headers['Cache-Control'])
+                unexpected_max_age=7200
+            app.config['SEND_FILE_MAX_AGE_DEFAULT']=unexpected_max_age
+            rv=blueprint.send_static_file('index.html')
+            cc=parse_cache_control_header(rv.headers['Cache-Control'])
             assert cc.max_age == 100
             rv.close()
     finally:
-        app.config['SEND_FILE_MAX_AGE_DEFAULT'] = max_age_default
+        app.config['SEND_FILE_MAX_AGE_DEFAULT']=max_age_default
 
 
 def test_templates_deck(test_apps):
     from blueprintapp import app
-    templates = sorted(app.jinja_env.deck_templates())
+    templates=sorted(app.jinja_env.deck_templates())
     assert templates == ['admin/index.html','frontend/index.html']
 
 
 def test_dotted_names(app,client):
-    frontend = flask.Blueprint('myapp.frontend',__name__)
-    backend = flask.Blueprint('myapp.backend',__name__)
+    frontend=flask.Blueprint('myapp.frontend',__name__)
+    backend=flask.Blueprint('myapp.backend',__name__)
 
     @frontend.route('/fe')
     def frontend_index():
@@ -282,7 +282,7 @@ def test_dotted_names(app,client):
 
 
 def test_dotted_names_from_app(app,client):
-    test = flask.Blueprint('test',__name__)
+    test=flask.Blueprint('test',__name__)
 
     @app.route('/')
     def app_index():
@@ -294,12 +294,12 @@ def test_dotted_names_from_app(app,client):
 
     app.register_blueprint(test)
 
-    rv = client.get('/')
+    rv=client.get('/')
     assert rv.data == b'/test/'
 
 
 def test_empty_url_defaults(app,client):
-    bp = flask.Blueprint('bp',__name__)
+    bp=flask.Blueprint('bp',__name__)
 
     @bp.route('/',defaults={'page': 1})
     @bp.route('/page/<int:page>')
@@ -313,7 +313,7 @@ def test_empty_url_defaults(app,client):
 
 
 def test_route_decorator_custom_endpoint(app,client):
-    bp = flask.Blueprint('bp',__name__)
+    bp=flask.Blueprint('bp',__name__)
 
     @bp.route('/foo')
     def foo():
@@ -345,7 +345,7 @@ def test_route_decorator_custom_endpoint(app,client):
 
 
 def test_route_decorator_custom_endpoint_with_dots(app,client):
-    bp = flask.Blueprint('bp',__name__)
+    bp=flask.Blueprint('bp',__name__)
 
     @bp.route('/foo')
     def foo():
@@ -385,7 +385,7 @@ def test_route_decorator_custom_endpoint_with_dots(app,client):
         lambda: None
     )
 
-    foo_foo_foo.__name__ = 'bar.123'
+    foo_foo_foo.__name__='bar.123'
 
     pytest.raises(
         AssertionError,
@@ -400,9 +400,9 @@ def test_route_decorator_custom_endpoint_with_dots(app,client):
 
     assert client.get('/py/foo').data == b'bp.foo'
     # The rule's didn't actually made it through
-    rv = client.get('/py/bar')
+    rv=client.get('/py/bar')
     assert rv.status_code == 404
-    rv = client.get('/py/bar/123')
+    rv=client.get('/py/bar/123')
     assert rv.status_code == 404
 
 
@@ -410,7 +410,7 @@ def test_endpoint_decorator(app,client):
     from werkzeug.routing import Rule
     app.url_map.add(Rule('/foo',endpoint='bar'))
 
-    bp = flask.Blueprint('bp',__name__)
+    bp=flask.Blueprint('bp',__name__)
 
     @bp.endpoint('bar')
     def foobar():
@@ -423,7 +423,7 @@ def test_endpoint_decorator(app,client):
 
 
 def test_template_filter(app):
-    bp = flask.Blueprint('bp',__name__)
+    bp=flask.Blueprint('bp',__name__)
 
     @bp.app_template_filter()
     def my_reverse(s):
@@ -436,7 +436,7 @@ def test_template_filter(app):
 
 
 def test_add_template_filter(app):
-    bp = flask.Blueprint('bp',__name__)
+    bp=flask.Blueprint('bp',__name__)
 
     def my_reverse(s):
         return s[::-1]
@@ -449,7 +449,7 @@ def test_add_template_filter(app):
 
 
 def test_template_filter_with_name(app):
-    bp = flask.Blueprint('bp',__name__)
+    bp=flask.Blueprint('bp',__name__)
 
     @bp.app_template_filter('strrev')
     def my_reverse(s):
@@ -462,7 +462,7 @@ def test_template_filter_with_name(app):
 
 
 def test_add_template_filter_with_name(app):
-    bp = flask.Blueprint('bp',__name__)
+    bp=flask.Blueprint('bp',__name__)
 
     def my_reverse(s):
         return s[::-1]
@@ -475,7 +475,7 @@ def test_add_template_filter_with_name(app):
 
 
 def test_template_filter_with_template(app,client):
-    bp = flask.Blueprint('bp',__name__)
+    bp=flask.Blueprint('bp',__name__)
 
     @bp.app_template_filter()
     def super_reverse(s):
@@ -487,7 +487,7 @@ def test_template_filter_with_template(app,client):
     def index():
         return flask.render_template('template_filter.html',value='abcd')
 
-    rv = client.get('/')
+    rv=client.get('/')
     assert rv.data == b'dcba'
 
 
@@ -496,19 +496,19 @@ def test_template_filter_after_route_with_template(app,client):
     def index():
         return flask.render_template('template_filter.html',value='abcd')
 
-    bp = flask.Blueprint('bp',__name__)
+    bp=flask.Blueprint('bp',__name__)
 
     @bp.app_template_filter()
     def super_reverse(s):
         return s[::-1]
 
     app.register_blueprint(bp,url_prefix='/py')
-    rv = client.get('/')
+    rv=client.get('/')
     assert rv.data == b'dcba'
 
 
 def test_add_template_filter_with_template(app,client):
-    bp = flask.Blueprint('bp',__name__)
+    bp=flask.Blueprint('bp',__name__)
 
     def super_reverse(s):
         return s[::-1]
@@ -520,12 +520,12 @@ def test_add_template_filter_with_template(app,client):
     def index():
         return flask.render_template('template_filter.html',value='abcd')
 
-    rv = client.get('/')
+    rv=client.get('/')
     assert rv.data == b'dcba'
 
 
 def test_template_filter_with_name_and_template(app,client):
-    bp = flask.Blueprint('bp',__name__)
+    bp=flask.Blueprint('bp',__name__)
 
     @bp.app_template_filter('super_reverse')
     def my_reverse(s):
@@ -537,12 +537,12 @@ def test_template_filter_with_name_and_template(app,client):
     def index():
         return flask.render_template('template_filter.html',value='abcd')
 
-    rv = client.get('/')
+    rv=client.get('/')
     assert rv.data == b'dcba'
 
 
 def test_add_template_filter_with_name_and_template(app,client):
-    bp = flask.Blueprint('bp',__name__)
+    bp=flask.Blueprint('bp',__name__)
 
     def my_reverse(s):
         return s[::-1]
@@ -554,12 +554,12 @@ def test_add_template_filter_with_name_and_template(app,client):
     def index():
         return flask.render_template('template_filter.html',value='abcd')
 
-    rv = client.get('/')
+    rv=client.get('/')
     assert rv.data == b'dcba'
 
 
 def test_template_test(app):
-    bp = flask.Blueprint('bp',__name__)
+    bp=flask.Blueprint('bp',__name__)
 
     @bp.app_template_test()
     def is_boolean(value):
@@ -572,7 +572,7 @@ def test_template_test(app):
 
 
 def test_add_template_test(app):
-    bp = flask.Blueprint('bp',__name__)
+    bp=flask.Blueprint('bp',__name__)
 
     def is_boolean(value):
         return isinstance(value,bool)
@@ -585,7 +585,7 @@ def test_add_template_test(app):
 
 
 def test_template_test_with_name(app):
-    bp = flask.Blueprint('bp',__name__)
+    bp=flask.Blueprint('bp',__name__)
 
     @bp.app_template_test('boolean')
     def is_boolean(value):
@@ -598,7 +598,7 @@ def test_template_test_with_name(app):
 
 
 def test_add_template_test_with_name(app):
-    bp = flask.Blueprint('bp',__name__)
+    bp=flask.Blueprint('bp',__name__)
 
     def is_boolean(value):
         return isinstance(value,bool)
@@ -611,7 +611,7 @@ def test_add_template_test_with_name(app):
 
 
 def test_template_test_with_template(app,client):
-    bp = flask.Blueprint('bp',__name__)
+    bp=flask.Blueprint('bp',__name__)
 
     @bp.app_template_test()
     def boolean(value):
@@ -623,7 +623,7 @@ def test_template_test_with_template(app,client):
     def index():
         return flask.render_template('template_test.html',value=False)
 
-    rv = client.get('/')
+    rv=client.get('/')
     assert b'Success!' in rv.data
 
 
@@ -632,19 +632,19 @@ def test_template_test_after_route_with_template(app,client):
     def index():
         return flask.render_template('template_test.html',value=False)
 
-    bp = flask.Blueprint('bp',__name__)
+    bp=flask.Blueprint('bp',__name__)
 
     @bp.app_template_test()
     def boolean(value):
         return isinstance(value,bool)
 
     app.register_blueprint(bp,url_prefix='/py')
-    rv = client.get('/')
+    rv=client.get('/')
     assert b'Success!' in rv.data
 
 
 def test_add_template_test_with_template(app,client):
-    bp = flask.Blueprint('bp',__name__)
+    bp=flask.Blueprint('bp',__name__)
 
     def boolean(value):
         return isinstance(value,bool)
@@ -656,12 +656,12 @@ def test_add_template_test_with_template(app,client):
     def index():
         return flask.render_template('template_test.html',value=False)
 
-    rv = client.get('/')
+    rv=client.get('/')
     assert b'Success!' in rv.data
 
 
 def test_template_test_with_name_and_template(app,client):
-    bp = flask.Blueprint('bp',__name__)
+    bp=flask.Blueprint('bp',__name__)
 
     @bp.app_template_test('boolean')
     def is_boolean(value):
@@ -673,12 +673,12 @@ def test_template_test_with_name_and_template(app,client):
     def index():
         return flask.render_template('template_test.html',value=False)
 
-    rv = client.get('/')
+    rv=client.get('/')
     assert b'Success!' in rv.data
 
 
 def test_add_template_test_with_name_and_template(app,client):
-    bp = flask.Blueprint('bp',__name__)
+    bp=flask.Blueprint('bp',__name__)
 
     def is_boolean(value):
         return isinstance(value,bool)
@@ -690,14 +690,14 @@ def test_add_template_test_with_name_and_template(app,client):
     def index():
         return flask.render_template('template_test.html',value=False)
 
-    rv = client.get('/')
+    rv=client.get('/')
     assert b'Success!' in rv.data
 
 
 def test_context_processing(app,client):
-    answer_bp = flask.Blueprint('answer_bp',__name__)
+    answer_bp=flask.Blueprint('answer_bp',__name__)
 
-    template_string = lambda: flask.render_template_string(
+    template_string=lambda: flask.render_template_string(
         '{% if notanswer %}{{ notanswer }} is not the answer. {% endif %}'
         '{% if answer %}{{ answer }} is the answer.{% endif %}'
     )
@@ -724,8 +724,8 @@ def test_context_processing(app,client):
     # Register the blueprint
     app.register_blueprint(answer_bp)
 
-    app_page_bytes = client.get('/').data
-    answer_page_bytes = client.get('/bp').data
+    app_page_bytes=client.get('/').data
+    answer_page_bytes=client.get('/bp').data
 
     assert b'43' in app_page_bytes
     assert b'42' not in app_page_bytes
@@ -735,7 +735,7 @@ def test_context_processing(app,client):
 
 
 def test_template_global(app):
-    bp = flask.Blueprint('bp',__name__)
+    bp=flask.Blueprint('bp',__name__)
 
     @bp.app_template_global()
     def get_answer():
@@ -751,13 +751,13 @@ def test_template_global(app):
     assert app.jinja_env.globals['get_answer']() == 42
 
     with app.app_context():
-        rv = flask.render_template_string('{{ get_answer() }}')
+        rv=flask.render_template_string('{{ get_answer() }}')
         assert rv == '42'
 
 
 def test_request_processing(app,client):
-    bp = flask.Blueprint('bp',__name__)
-    evts = []
+    bp=flask.Blueprint('bp',__name__)
+    evts=[]
 
     @bp.before_request
     def before_bp():
@@ -781,14 +781,14 @@ def test_request_processing(app,client):
     app.register_blueprint(bp)
 
     assert evts == []
-    rv = client.get('/bp')
+    rv=client.get('/bp')
     assert rv.data == b'request|after'
     assert evts == ['before','after','teardown']
 
 
 def test_app_request_processing(app,client):
-    bp = flask.Blueprint('bp',__name__)
-    evts = []
+    bp=flask.Blueprint('bp',__name__)
+    evts=[]
 
     @bp.before_app_first_request
     def before_first_request():
@@ -819,18 +819,18 @@ def test_app_request_processing(app,client):
     assert evts == []
 
     # first request
-    resp = client.get('/').data
+    resp=client.get('/').data
     assert resp == b'request|after'
     assert evts == ['first','before','after','teardown']
 
     # second request
-    resp = client.get('/').data
+    resp=client.get('/').data
     assert resp == b'request|after'
     assert evts == ['first'] + ['before','after','teardown'] * 2
 
 
 def test_app_url_processors(app,client):
-    bp = flask.Blueprint('bp',__name__)
+    bp=flask.Blueprint('bp',__name__)
 
     # Register app-wide url defaults and preprocessor on blueprint
     @bp.app_url_defaults
@@ -839,7 +839,7 @@ def test_app_url_processors(app,client):
 
     @bp.app_url_value_preprocessor
     def pull_lang_code(endpoint,values):
-        flask.g.lang_code = values.pop('lang_code')
+        flask.g.lang_code=values.pop('lang_code')
 
     # Register route rules at the app level
     @app.route('/<lang_code>/')

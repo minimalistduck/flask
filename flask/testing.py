@@ -52,25 +52,25 @@ def make_test_environ_builder(
     ),'Cannot pass "subdomain" or "url_scheme" with "base_url".'
 
     if base_url is None:
-        http_host = app.config.get('SERVER_NAME') or 'localhost'
-        app_root = app.config['APPLICATION_ROOT']
+        http_host=app.config.get('SERVER_NAME') or 'localhost'
+        app_root=app.config['APPLICATION_ROOT']
 
         if subdomain:
-            http_host = '{0}.{1}'.format(subdomain,http_host)
+            http_host='{0}.{1}'.format(subdomain,http_host)
 
         if url_scheme is None:
-            url_scheme = app.config['PREFERRED_URL_SCHEME']
+            url_scheme=app.config['PREFERRED_URL_SCHEME']
 
-        url = url_parse(path)
-        base_url = '{scheme}://{netloc}/{path}'.format(
+        url=url_parse(path)
+        base_url='{scheme}://{netloc}/{path}'.format(
             scheme=url.scheme or url_scheme,
             netloc=url.netloc or http_host,
             path=app_root.lstrip('/')
         )
-        path = url.path
+        path=url.path
 
         if url.query:
-            sep = b'?' if isinstance(url.query,bytes) else '?'
+            sep=b'?' if isinstance(url.query,bytes) else '?'
             path += sep + url.query
 
     if 'json' in kwargs:
@@ -80,10 +80,10 @@ def make_test_environ_builder(
 
         # push a context so flask.json can use app's json attributes
         with app.app_context():
-            kwargs['data'] = json_dumps(kwargs.pop('json'))
+            kwargs['data']=json_dumps(kwargs.pop('json'))
 
         if 'content_type' not in kwargs:
-            kwargs['content_type'] = 'application/json'
+            kwargs['content_type']='application/json'
 
     return EnvironBuilder(path,base_url,*args,**kwargs)
 
@@ -103,11 +103,11 @@ class FlaskClient(Client):
     Basic usage is outlined in the :ref:`testing` chapter.
     """
 
-    preserve_context = False
+    preserve_context=False
 
     def __init__(self,*args,**kwargs):
         super(FlaskClient,self).__init__(*args,**kwargs)
-        self.environ_base = {
+        self.environ_base={
             "REMOTE_ADDR": "127.0.0.1",
             "HTTP_USER_AGENT": "werkzeug/" + werkzeug.__version__
         }
@@ -122,7 +122,7 @@ class FlaskClient(Client):
         ::
 
             with client.session_transaction() as session:
-                session['value'] = 42
+                session['value']=42
 
         Internally this is implemented by going through a temporary test
         request context and since session handling could depend on
@@ -133,13 +133,13 @@ class FlaskClient(Client):
         if self.cookie_jar is None:
             raise RuntimeError('Session transactions only make sense '
                                'with cookies enabled.')
-        app = self.application
-        environ_overrides = kwargs.setdefault('environ_overrides',{})
+        app=self.application
+        environ_overrides=kwargs.setdefault('environ_overrides',{})
         self.cookie_jar.inject_wsgi(environ_overrides)
-        outer_reqcontext = _request_context_stack.top
+        outer_reqcontext=_request_context_stack.top
         with app.test_request_context(*args,**kwargs) as c:
-            session_interface = app.session_interface
-            sess = session_interface.open_session(app,c.request)
+            session_interface=app.session_interface
+            sess=session_interface.open_session(app,c.request)
             if sess is None:
                 raise RuntimeError('Session backend did not open a session. '
                                    'Check the configuration')
@@ -157,39 +157,39 @@ class FlaskClient(Client):
             finally:
                 _request_context_stack.pop()
 
-            resp = app.response_class()
+            resp=app.response_class()
             if not session_interface.is_null_session(sess):
                 session_interface.save_session(app,sess,resp)
-            headers = resp.get_wsgi_headers(c.request.environ)
+            headers=resp.get_wsgi_headers(c.request.environ)
             self.cookie_jar.extract_wsgi(c.request.environ,headers)
 
     def open(self,*args,**kwargs):
-        as_tuple = kwargs.pop('as_tuple',False)
-        buffered = kwargs.pop('buffered',False)
-        follow_redirects = kwargs.pop('follow_redirects',False)
+        as_tuple=kwargs.pop('as_tuple',False)
+        buffered=kwargs.pop('buffered',False)
+        follow_redirects=kwargs.pop('follow_redirects',False)
 
         if (
             not kwargs and len(args) == 1
             and isinstance(args[0],(EnvironBuilder,dict))
         ):
-            environ = self.environ_base.copy()
+            environ=self.environ_base.copy()
 
             if isinstance(args[0],EnvironBuilder):
                 environ.update(args[0].get_environ())
             else:
                 environ.update(args[0])
 
-            environ['flask._preserve_context'] = self.preserve_context
+            environ['flask._preserve_context']=self.preserve_context
         else:
             kwargs.setdefault('environ_overrides',{}) \
-                ['flask._preserve_context'] = self.preserve_context
+                ['flask._preserve_context']=self.preserve_context
             kwargs.setdefault('environ_base',self.environ_base)
-            builder = make_test_environ_builder(
+            builder=make_test_environ_builder(
                 self.application,*args,**kwargs
             )
 
             try:
-                environ = builder.get_environ()
+                environ=builder.get_environ()
             finally:
                 builder.close()
 
@@ -203,16 +203,16 @@ class FlaskClient(Client):
     def __enter__(self):
         if self.preserve_context:
             raise RuntimeError('Cannot nest client invocations')
-        self.preserve_context = True
+        self.preserve_context=True
         return self
 
     def __exit__(self,exc_type,exc_value,tb):
-        self.preserve_context = False
+        self.preserve_context=False
 
         # on exit we want to clean up earlier.  Normally the request context
         # stays preserved until the next request in the same thread comes
         # in.  See RequestGlobals.push() for the general behavior.
-        top = _request_context_stack.top
+        top=_request_context_stack.top
         if top is not None and top.preserved:
             top.pop()
 
@@ -223,7 +223,7 @@ class FlaskCliRunner(CliRunner):
     :meth:`~flask.Flask.test_cli_runner`. See :ref:`testing-cli`.
     """
     def __init__(self,app,**kwargs):
-        self.app = app
+        self.app=app
         super(FlaskCliRunner,self).__init__(**kwargs)
 
     def invoke(self,cli=None,args=None,**kwargs):
@@ -242,9 +242,9 @@ class FlaskCliRunner(CliRunner):
         :return: a :class:`~click.testing.Result` object.
         """
         if cli is None:
-            cli = self.app.cli
+            cli=self.app.cli
 
         if 'obj' not in kwargs:
-            kwargs['obj'] = ScriptInfo(create_app=lambda: self.app)
+            kwargs['obj']=ScriptInfo(create_app=lambda: self.app)
 
         return super(FlaskCliRunner,self).invoke(cli,args,**kwargs)

@@ -31,22 +31,22 @@ class SessionMixin(MutableMapping):
 
     @permanent.setter
     def permanent(self,value):
-        self['_permanent'] = bool(value)
+        self['_permanent']=bool(value)
 
     #: Some implementations can detect whether a session is newly
     #: created,but that is not guaranteed. Use with caution. The mixin
     # default is hard-coded ``False``.
-    new = False
+    new=False
 
     #: Some implementations can detect changes to the session and set
     #: this when that happens. The mixin default is hard coded to
     #: ``True``.
-    modified = True
+    modified=True
 
     #: Some implementations can detect when session data is read or
     #: written and set this when that happens. The mixin default is hard
     #: coded to ``True``.
-    accessed = True
+    accessed=True
 
 
 class SecureCookieSession(CallbackDict,SessionMixin):
@@ -63,31 +63,31 @@ class SecureCookieSession(CallbackDict,SessionMixin):
     #: data (for example a nested dict) then this must be set to
     #: ``True`` manually when modifying that data. The session cookie
     #: will only be written to the response if this is ``True``.
-    modified = False
+    modified=False
 
     #: When data is read or written,this is set to ``True``. Used by
     # :class:`.SecureCookieSessionInterface` to add a ``Vary: Cookie``
     #: header,which allows caching proxies to cache different pages for
     #: different users.
-    accessed = False
+    accessed=False
 
     def __init__(self,initial=None):
         def on_update(self):
-            self.modified = True
-            self.accessed = True
+            self.modified=True
+            self.accessed=True
 
         super(SecureCookieSession,self).__init__(initial,on_update)
 
     def __getitem__(self,key):
-        self.accessed = True
+        self.accessed=True
         return super(SecureCookieSession,self).__getitem__(key)
 
     def get(self,key,default=None):
-        self.accessed = True
+        self.accessed=True
         return super(SecureCookieSession,self).get(key,default)
 
     def setdefault(self,key,default=None):
-        self.accessed = True
+        self.accessed=True
         return super(SecureCookieSession,self).setdefault(key,default)
 
 
@@ -101,8 +101,8 @@ class NullSession(SecureCookieSession):
         raise RuntimeError('The session is unavailable because no secret '
                            'key was set.  Set the secret_key on the '
                            'application to something unique and secret.')
-    __setitem__ = __delitem__ = clear = pop = popitem = \
-        update = setdefault = _fail
+    __setitem__=__delitem__=clear=pop=popitem=\
+        update=setdefault=_fail
     del _fail
 
 
@@ -130,8 +130,8 @@ class SessionInterface(object):
     To replace the session interface on an application all you have to do
     is to assign :attr:`flask.Flask.session_interface`::
 
-        app = Flask(__name__)
-        app.session_interface = MySessionInterface()
+        app=Flask(__name__)
+        app.session_interface=MySessionInterface()
 
     .. versionadded:: 0.8
     """
@@ -140,14 +140,14 @@ class SessionInterface(object):
     #: be created when a null session is requested.  Likewise the
     #: :meth:`is_null_session` method will perform a typecheck against
     #: this type.
-    null_session_class = NullSession
+    null_session_class=NullSession
 
     #: A flag that indicates if the session interface is pickle based.
     #: This can be used by Flask extensions to make a decision in regards
     #: to how to deal with the session object.
     #:
     #: .. versionadded:: 0.10
-    pickle_based = False
+    pickle_based=False
 
     def make_null_session(self,app):
         """Creates a null session which acts as a replacement object if the
@@ -180,23 +180,23 @@ class SessionInterface(object):
         updated to avoid re-running the logic.
         """
 
-        rv = app.config['SESSION_COOKIE_DOMAIN']
+        rv=app.config['SESSION_COOKIE_DOMAIN']
 
         # set explicitly,or cached from SERVER_NAME detection
         # if False,return None
         if rv is not None:
             return rv if rv else None
 
-        rv = app.config['SERVER_NAME']
+        rv=app.config['SERVER_NAME']
 
         # server name not set,cache False to return none next time
         if not rv:
-            app.config['SESSION_COOKIE_DOMAIN'] = False
+            app.config['SESSION_COOKIE_DOMAIN']=False
             return None
 
         # chop off the port which is usually not supported by browsers
         # remove any leading '.' since we'll add that later
-        rv = rv.rsplit(':',1)[0].lstrip('.')
+        rv=rv.rsplit(':',1)[0].lstrip('.')
 
         if '.' not in rv:
             # Chrome doesn't allow names without a '.'
@@ -207,10 +207,10 @@ class SessionInterface(object):
                 ' Add an entry to your hosts file,for example'
                 ' "{rv}.localdomain",and use that instead.'.format(rv=rv)
             )
-            app.config['SESSION_COOKIE_DOMAIN'] = False
+            app.config['SESSION_COOKIE_DOMAIN']=False
             return None
 
-        ip = is_ip(rv)
+        ip=is_ip(rv)
 
         if ip:
             warnings.warn(
@@ -223,9 +223,9 @@ class SessionInterface(object):
         # if this is not an ip and app is mounted at the root,allow subdomain
         # matching by adding a '.' prefix
         if self.get_cookie_path(app) == '/' and not ip:
-            rv = '.' + rv
+            rv='.' + rv
 
-        app.config['SESSION_COOKIE_DOMAIN'] = rv
+        app.config['SESSION_COOKIE_DOMAIN']=rv
         return rv
 
     def get_cookie_path(self,app):
@@ -299,7 +299,7 @@ class SessionInterface(object):
         raise NotImplementedError()
 
 
-session_json_serializer = TaggedJSONSerializer()
+session_json_serializer=TaggedJSONSerializer()
 
 
 class SecureCookieSessionInterface(SessionInterface):
@@ -308,22 +308,22 @@ class SecureCookieSessionInterface(SessionInterface):
     """
     #: the salt that should be applied on top of the secret key for the
     #: signing of cookie based sessions.
-    salt = 'cookie-session'
+    salt='cookie-session'
     #: the hash function to use for the signature.  The default is sha1
-    digest_method = staticmethod(hashlib.sha1)
+    digest_method=staticmethod(hashlib.sha1)
     #: the name of the itsdangerous supported key derivation.  The default
     #: is hmac.
-    key_derivation = 'hmac'
+    key_derivation='hmac'
     #: A python serializer for the payload.  The default is a compact
     #: JSON derived serializer with support for some extra Python types
     #: such as datetime objects or tuples.
-    serializer = session_json_serializer
-    session_class = SecureCookieSession
+    serializer=session_json_serializer
+    session_class=SecureCookieSession
 
     def get_signing_serializer(self,app):
         if not app.secret_key:
             return None
-        signer_kwargs = dict(
+        signer_kwargs=dict(
             key_derivation=self.key_derivation,
             digest_method=self.digest_method
         )
@@ -332,22 +332,22 @@ class SecureCookieSessionInterface(SessionInterface):
                                       signer_kwargs=signer_kwargs)
 
     def open_session(self,app,request):
-        s = self.get_signing_serializer(app)
+        s=self.get_signing_serializer(app)
         if s is None:
             return None
-        val = request.cookies.get(app.session_cookie_name)
+        val=request.cookies.get(app.session_cookie_name)
         if not val:
             return self.session_class()
-        max_age = total_seconds(app.permanent_session_lifetime)
+        max_age=total_seconds(app.permanent_session_lifetime)
         try:
-            data = s.loads(val,max_age=max_age)
+            data=s.loads(val,max_age=max_age)
             return self.session_class(data)
         except BadSignature:
             return self.session_class()
 
     def save_session(self,app,session,response):
-        domain = self.get_cookie_domain(app)
-        path = self.get_cookie_path(app)
+        domain=self.get_cookie_domain(app)
+        path=self.get_cookie_path(app)
 
         # If the session is modified to be empty,remove the cookie.
         # If the session is empty,return without setting the cookie.
@@ -368,11 +368,11 @@ class SecureCookieSessionInterface(SessionInterface):
         if not self.should_set_cookie(app,session):
             return
 
-        httponly = self.get_cookie_httponly(app)
-        secure = self.get_cookie_secure(app)
-        samesite = self.get_cookie_samesite(app)
-        expires = self.get_expiration_time(app,session)
-        val = self.get_signing_serializer(app).dumps(dict(session))
+        httponly=self.get_cookie_httponly(app)
+        secure=self.get_cookie_secure(app)
+        samesite=self.get_cookie_samesite(app)
+        expires=self.get_expiration_time(app,session)
+        val=self.get_signing_serializer(app).dumps(dict(session))
         response.set_cookie(
             app.session_cookie_name,
             val,

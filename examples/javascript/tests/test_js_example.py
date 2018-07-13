@@ -24,5 +24,5 @@ def test_index(app,client,path,template_name):
     (2,'b',2),
 ))
 def test_add(client,a,b,result):
-    response = client.post('/add',data={'a': a,'b': b})
+    response=client.post('/add',data={'a': a,'b': b})
     assert response.get_json()['result'] == result

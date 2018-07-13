@@ -20,7 +20,7 @@ from ._compat import BROKEN_PYPY_CTXMGR_EXIT,reraise
 
 
 # a singleton sentinel value for parameter defaults
-_sentinel = object()
+_sentinel=object()
 
 
 class _AppCtxGlobals(object):
@@ -87,7 +87,7 @@ class _AppCtxGlobals(object):
         return iter(self.__dict__)
 
     def __repr__(self):
-        top = _app_context_stack.top
+        top=_app_context_stack.top
         if top is not None:
             return '<flask.g of %r>' % top.app.name
         return object.__repr__(self)
@@ -104,7 +104,7 @@ def after_this_request(f):
         def index():
             @after_this_request
             def add_header(response):
-                response.headers['X-Foo'] = 'Parachute'
+                response.headers['X-Foo']='Parachute'
                 return response
             return 'Hello World!'
 
@@ -141,12 +141,12 @@ def copy_current_request_context(f):
 
     .. versionadded:: 0.10
     """
-    top = _request_context_stack.top
+    top=_request_context_stack.top
     if top is None:
         raise RuntimeError('This decorator can only be used at local scopes '
             'when a request context is on the stack.  For instance within '
             'view functions.')
-    reqcontext = top.copy()
+    reqcontext=top.copy()
     def wrapper(*args,**kwargs):
         with reqcontext:
             return f(*args,**kwargs)
@@ -164,10 +164,10 @@ def has_request_context():
         class User(db.Model):
 
             def __init__(self,username,remote_addr=None):
-                self.username = username
+                self.username=username
                 if remote_addr is None and has_request_context():
-                    remote_addr = request.remote_addr
-                self.remote_addr = remote_addr
+                    remote_addr=request.remote_addr
+                self.remote_addr=remote_addr
 
     Alternatively you can also just test any of the context bound objects
     (such as :class:`request` or :class:`g` for truthness)::
@@ -175,10 +175,10 @@ def has_request_context():
         class User(db.Model):
 
             def __init__(self,username,remote_addr=None):
-                self.username = username
+                self.username=username
                 if remote_addr is None and request:
-                    remote_addr = request.remote_addr
-                self.remote_addr = remote_addr
+                    remote_addr=request.remote_addr
+                self.remote_addr=remote_addr
 
     .. versionadded:: 0.7
     """
@@ -205,13 +205,13 @@ class AppContext(object):
     """
 
     def __init__(self,app):
-        self.app = app
-        self.url_adapter = app.create_url_adapter(None)
-        self.g = app.app_context_globals_class()
+        self.app=app
+        self.url_adapter=app.create_url_adapter(None)
+        self.g=app.app_context_globals_class()
 
         # Like request context,app contexts can be pushed multiple times
         # but there a basic "refcount" is enough to track them.
-        self._refcnt = 0
+        self._refcnt=0
 
     def push(self):
         """Binds the app context to the current context."""
@@ -227,10 +227,10 @@ class AppContext(object):
             self._refcnt -= 1
             if self._refcnt <= 0:
                 if exc is _sentinel:
-                    exc = sys.exc_info()[1]
+                    exc=sys.exc_info()[1]
                 self.app.do_teardown_appcontext(exc)
         finally:
-            rv = _app_context_stack.pop()
+            rv=_app_context_stack.pop()
         assert rv is self,'Popped wrong app context.  (%r instead of %r)' \
             % (rv,self)
         appcontext_popped.send(self.app)
@@ -277,40 +277,40 @@ class RequestContext(object):
     """
 
     def __init__(self,app,environ,request=None):
-        self.app = app
+        self.app=app
         if request is None:
-            request = app.request_class(environ)
-        self.request = request
-        self.url_adapter = app.create_url_adapter(self.request)
-        self.flashes = None
-        self.session = None
+            request=app.request_class(environ)
+        self.request=request
+        self.url_adapter=app.create_url_adapter(self.request)
+        self.flashes=None
+        self.session=None
 
         # Request contexts can be pushed multiple times and interleaved with
         # other request contexts.  Now only if the last level is popped we
         # get rid of them.  Additionally if an application context is missing
         # one is created implicitly so for each level we add this information
-        self._implicit_app_context_stack = []
+        self._implicit_app_context_stack=[]
 
         # indicator if the context was preserved.  Next time another context
         # is pushed the preserved context is popped.
-        self.preserved = False
+        self.preserved=False
 
         # remembers the exception for pop if there is one in case the context
         # preservation kicks in.
-        self._preserved_exc = None
+        self._preserved_exc=None
 
         # Functions that should be executed after the request on the response
         # object.  These will be called before the regular "after_request"
         # functions.
-        self._after_request_functions = []
+        self._after_request_functions=[]
 
         self.match_request()
 
     def _get_g(self):
         return _app_context_stack.top.g
     def _set_g(self,value):
-        _app_context_stack.top.g = value
-    g = property(_get_g,_set_g)
+        _app_context_stack.top.g=value
+    g=property(_get_g,_set_g)
     del _get_g,_set_g
 
     def copy(self):
@@ -332,11 +332,11 @@ class RequestContext(object):
         of the request.
         """
         try:
-            url_rule,self.request.view_args = \
+            url_rule,self.request.view_args=\
                 self.url_adapter.match(return_rule=True)
-            self.request.url_rule = url_rule
+            self.request.url_rule=url_rule
         except HTTPException as e:
-            self.request.routing_exception = e
+            self.request.routing_exception=e
 
     def push(self):
         """Binds the request context to the current context."""
@@ -348,15 +348,15 @@ class RequestContext(object):
         # it's invalidated,otherwise we run at risk that something leaks
         # memory.  This is usually only a problem in test suite since this
         # functionality is not active in production environments.
-        top = _request_context_stack.top
+        top=_request_context_stack.top
         if top is not None and top.preserved:
             top.pop(top._preserved_exc)
 
         # Before we push the request context we have to ensure that there
         # is an application context.
-        app_context = _app_context_stack.top
+        app_context=_app_context_stack.top
         if app_context is None or app_context.app != self.app:
-            app_context = self.app.app_context()
+            app_context=self.app.app_context()
             app_context.push()
             self._implicit_app_context_stack.append(app_context)
         else:
@@ -372,13 +372,13 @@ class RequestContext(object):
         # Only open a new session if this is the first time the request was
         # pushed,otherwise stream_with_context loses the session.
         if self.session is None:
-            session_interface = self.app.session_interface
-            self.session = session_interface.open_session(
+            session_interface=self.app.session_interface
+            self.session=session_interface.open_session(
                 self.app,self.request
             )
 
             if self.session is None:
-                self.session = session_interface.make_null_session(self.app)
+                self.session=session_interface.make_null_session(self.app)
 
     def pop(self,exc=_sentinel):
         """Pops the request context and unbinds it by doing that.  This will
@@ -388,15 +388,15 @@ class RequestContext(object):
         .. versionchanged:: 0.9
            Added the `exc` argument.
         """
-        app_context = self._implicit_app_context_stack.pop()
+        app_context=self._implicit_app_context_stack.pop()
 
         try:
-            clear_request = False
+            clear_request=False
             if not self._implicit_app_context_stack:
-                self.preserved = False
-                self._preserved_exc = None
+                self.preserved=False
+                self._preserved_exc=None
                 if exc is _sentinel:
-                    exc = sys.exc_info()[1]
+                    exc=sys.exc_info()[1]
                 self.app.do_teardown_request(exc)
 
                 # If this interpreter supports clearing the exception information
@@ -406,17 +406,17 @@ class RequestContext(object):
                 if hasattr(sys,'exc_clear'):
                     sys.exc_clear()
 
-                request_close = getattr(self.request,'close',None)
+                request_close=getattr(self.request,'close',None)
                 if request_close is not None:
                     request_close()
-                clear_request = True
+                clear_request=True
         finally:
-            rv = _request_context_stack.pop()
+            rv=_request_context_stack.pop()
 
             # get rid of circular dependencies at the end of the request
             # so that we don't require the GC to be active.
             if clear_request:
-                rv.request.environ['werkzeug.request'] = None
+                rv.request.environ['werkzeug.request']=None
 
             # Get rid of the app as well if necessary.
             if app_context is not None:
@@ -428,8 +428,8 @@ class RequestContext(object):
     def auto_pop(self,exc):
         if self.request.environ.get('flask._preserve_context') or \
            (exc is not None and self.app.preserve_context_on_exception):
-            self.preserved = True
-            self._preserved_exc = exc
+            self.preserved=True
+            self._preserved_exc=exc
         else:
             self.pop(exc)
 

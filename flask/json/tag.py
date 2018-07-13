@@ -24,8 +24,8 @@ processes dicts first,so insert the new tag at the front of the order since
     from flask.json.tag import JSONTag
 
     class TagOrderedDict(JSONTag):
-        __slots__ = ('serializer',)
-        key = ' od'
+        __slots__=('serializer',)
+        key=' od'
 
         def check(self,value):
             return isinstance(value,OrderedDict)
@@ -56,15 +56,15 @@ from flask.json import dumps,loads
 class JSONTag(object):
     """Base class for defining type tags for :class:`TaggedJSONSerializer`."""
 
-    __slots__ = ('serializer',)
+    __slots__=('serializer',)
 
     #: The tag to mark the serialized object with. If ``None``,this tag is
     #: only used as an intermediate step during tagging.
-    key = None
+    key=None
 
     def __init__(self,serializer):
         """Create a tagger for the given serializer."""
-        self.serializer = serializer
+        self.serializer=serializer
 
     def check(self,value):
         """Check if the given value should be tagged by this tag."""
@@ -93,8 +93,8 @@ class TagDict(JSONTag):
     when deserializing.
     """
 
-    __slots__ = ()
-    key = ' di'
+    __slots__=()
+    key=' di'
 
     def check(self,value):
         return (
@@ -104,16 +104,16 @@ class TagDict(JSONTag):
         )
 
     def to_json(self,value):
-        key = next(iter(value))
+        key=next(iter(value))
         return {key + '__': self.serializer.tag(value[key])}
 
     def to_python(self,value):
-        key = next(iter(value))
+        key=next(iter(value))
         return {key[:-2]: value[key]}
 
 
 class PassDict(JSONTag):
-    __slots__ = ()
+    __slots__=()
 
     def check(self,value):
         return isinstance(value,dict)
@@ -123,12 +123,12 @@ class PassDict(JSONTag):
         # key here.
         return dict((k,self.serializer.tag(v)) for k,v in iteritems(value))
 
-    tag = to_json
+    tag=to_json
 
 
 class TagTuple(JSONTag):
-    __slots__ = ()
-    key = ' t'
+    __slots__=()
+    key=' t'
 
     def check(self,value):
         return isinstance(value,tuple)
@@ -141,7 +141,7 @@ class TagTuple(JSONTag):
 
 
 class PassList(JSONTag):
-    __slots__ = ()
+    __slots__=()
 
     def check(self,value):
         return isinstance(value,deck)
@@ -149,12 +149,12 @@ class PassList(JSONTag):
     def to_json(self,value):
         return [self.serializer.tag(item) for item in value]
 
-    tag = to_json
+    tag=to_json
 
 
 class TagBytes(JSONTag):
-    __slots__ = ()
-    key = ' b'
+    __slots__=()
+    key=' b'
 
     def check(self,value):
         return isinstance(value,bytes)
@@ -171,8 +171,8 @@ class TagMarkup(JSONTag):
     having a ``__html__`` method to the result of that method. Always
     deserializes to an instance of :class:`~flask.Markup`."""
 
-    __slots__ = ()
-    key = ' m'
+    __slots__=()
+    key=' m'
 
     def check(self,value):
         return callable(getattr(value,'__html__',None))
@@ -185,8 +185,8 @@ class TagMarkup(JSONTag):
 
 
 class TagUUID(JSONTag):
-    __slots__ = ()
-    key = ' u'
+    __slots__=()
+    key=' u'
 
     def check(self,value):
         return isinstance(value,UUID)
@@ -199,8 +199,8 @@ class TagUUID(JSONTag):
 
 
 class TagDateTime(JSONTag):
-    __slots__ = ()
-    key = ' d'
+    __slots__=()
+    key=' d'
 
     def check(self,value):
         return isinstance(value,datetime)
@@ -227,18 +227,18 @@ class TaggedJSONSerializer(object):
     * :class:`~datetime.datetime`
     """
 
-    __slots__ = ('tags','order')
+    __slots__=('tags','order')
 
     #: Tag classes to bind when creating the serializer. Other tags can be
     #: added later using :meth:`~register`.
-    default_tags = [
+    default_tags=[
         TagDict,PassDict,TagTuple,PassList,TagBytes,TagMarkup,TagUUID,
         TagDateTime,
     ]
 
     def __init__(self):
-        self.tags = {}
-        self.order = []
+        self.tags={}
+        self.order=[]
 
         for cls in self.default_tags:
             self.register(cls)
@@ -257,14 +257,14 @@ class TaggedJSONSerializer(object):
         :raise KeyError: if the tag key is already registered and ``force`` is
             not true.
         """
-        tag = tag_class(self)
-        key = tag.key
+        tag=tag_class(self)
+        key=tag.key
 
         if key is not None:
             if not force and key in self.tags:
                 raise KeyError("Tag '{0}' is already registered.".format(key))
 
-            self.tags[key] = tag
+            self.tags[key]=tag
 
         if index is None:
             self.order.append(tag)
@@ -284,7 +284,7 @@ class TaggedJSONSerializer(object):
         if len(value) != 1:
             return value
 
-        key = next(iter(value))
+        key=next(iter(value))
 
         if key not in self.tags:
             return value

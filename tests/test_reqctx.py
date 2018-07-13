@@ -17,17 +17,17 @@ from flask.sessions import SessionInterface
 try:
     from greenlet import greenlet
 except ImportError:
-    greenlet = None
+    greenlet=None
 
 
 def test_teardown_on_pop(app):
-    buffer = []
+    buffer=[]
 
     @app.teardown_request
     def end_of_request(exception):
         buffer.append(exception)
 
-    context = app.test_request_context()
+    context=app.test_request_context()
     context.push()
     assert buffer == []
     context.pop()
@@ -35,7 +35,7 @@ def test_teardown_on_pop(app):
 
 
 def test_teardown_with_previous_exception(app):
-    buffer = []
+    buffer=[]
 
     @app.teardown_request
     def end_of_request(exception):
@@ -52,7 +52,7 @@ def test_teardown_with_previous_exception(app):
 
 
 def test_teardown_with_handled_exception(app):
-    buffer = []
+    buffer=[]
 
     @app.teardown_request
     def end_of_request(exception):
@@ -126,7 +126,7 @@ def test_context_binding(app):
 def test_context_test(app):
     assert not flask.request
     assert not flask.has_request_context()
-    context = app.test_request_context()
+    context=app.test_request_context()
     context.push()
     try:
         assert flask.request
@@ -140,7 +140,7 @@ def test_manual_context_binding(app):
     def index():
         return 'Hello %s!' % flask.request.args['name']
 
-    context = app.test_request_context('/?name=World')
+    context=app.test_request_context('/?name=World')
     context.push()
     assert index() == 'Hello World!'
     context.pop()
@@ -152,11 +152,11 @@ def test_manual_context_binding(app):
 class TestGreenletContextCopying(object):
 
     def test_greenlet_context_copying(self,app,client):
-        greenlets = []
+        greenlets=[]
 
         @app.route('/')
         def index():
-            reqcontext = flask._request_context_stack.top.copy()
+            reqcontext=flask._request_context_stack.top.copy()
 
             def g():
                 assert not flask.request
@@ -172,18 +172,18 @@ class TestGreenletContextCopying(object):
             greenlets.append(greenlet(g))
             return 'Hello World!'
 
-        rv = client.get('/?foo=bar')
+        rv=client.get('/?foo=bar')
         assert rv.data == b'Hello World!'
 
-        result = greenlets[0].run()
+        result=greenlets[0].run()
         assert result == 42
 
     def test_greenlet_context_copying_api(self,app,client):
-        greenlets = []
+        greenlets=[]
 
         @app.route('/')
         def index():
-            reqcontext = flask._request_context_stack.top.copy()
+            reqcontext=flask._request_context_stack.top.copy()
 
             @flask.copy_current_request_context
             def g():
@@ -196,10 +196,10 @@ class TestGreenletContextCopying(object):
             greenlets.append(greenlet(g))
             return 'Hello World!'
 
-        rv = client.get('/?foo=bar')
+        rv=client.get('/?foo=bar')
         assert rv.data == b'Hello World!'
 
-        result = greenlets[0].run()
+        result=greenlets[0].run()
         assert result == 42
 
 
@@ -212,16 +212,16 @@ def test_session_error_pops_context():
             raise SessionError()
 
     class CustomFlask(flask.Flask):
-        session_interface = FailingSessionInterface()
+        session_interface=FailingSessionInterface()
 
-    app = CustomFlask(__name__)
+    app=CustomFlask(__name__)
 
     @app.route('/')
     def index():
         # shouldn't get here
         assert False
 
-    response = app.test_client().get('/')
+    response=app.test_client().get('/')
     assert response.status_code == 500
     assert not flask.request
     assert not flask.current_app

@@ -18,18 +18,18 @@ from werkzeug.http import parse_set_header
 
 
 def common_test(app):
-    c = app.test_client()
+    c=app.test_client()
 
     assert c.get('/').data == b'GET'
     assert c.post('/').data == b'POST'
     assert c.put('/').status_code == 405
-    meths = parse_set_header(c.open('/',method='OPTIONS').headers['Allow'])
+    meths=parse_set_header(c.open('/',method='OPTIONS').headers['Allow'])
     assert sorted(meths) == ['GET','HEAD','OPTIONS','POST']
 
 
 def test_basic_view(app):
     class Index(flask.views.View):
-        methods = ['GET','POST']
+        methods=['GET','POST']
 
         def dispatch_request(self):
             return flask.request.method
@@ -66,8 +66,8 @@ def test_view_patching(app):
         def post(self):
             return 'POST'
 
-    view = Index.as_view('index')
-    view.view_class = Other
+    view=Index.as_view('index')
+    view.view_class=Other
     app.add_url_rule('/',view_func=view)
     common_test(app)
 
@@ -86,68 +86,68 @@ def test_view_inheritance(app,client):
 
     app.add_url_rule('/',view_func=BetterIndex.as_view('index'))
 
-    meths = parse_set_header(client.open('/',method='OPTIONS').headers['Allow'])
+    meths=parse_set_header(client.open('/',method='OPTIONS').headers['Allow'])
     assert sorted(meths) == ['DELETE','GET','HEAD','OPTIONS','POST']
 
 
 def test_view_decorators(app,client):
     def add_x_parachute(f):
         def new_function(*args,**kwargs):
-            resp = flask.make_response(f(*args,**kwargs))
-            resp.headers['X-Parachute'] = 'awesome'
+            resp=flask.make_response(f(*args,**kwargs))
+            resp.headers['X-Parachute']='awesome'
             return resp
 
         return new_function
 
     class Index(flask.views.View):
-        decorators = [add_x_parachute]
+        decorators=[add_x_parachute]
 
         def dispatch_request(self):
             return 'Awesome'
 
     app.add_url_rule('/',view_func=Index.as_view('index'))
-    rv = client.get('/')
+    rv=client.get('/')
     assert rv.headers['X-Parachute'] == 'awesome'
     assert rv.data == b'Awesome'
 
 
 def test_view_provide_automatic_options_attr():
-    app = flask.Flask(__name__)
+    app=flask.Flask(__name__)
 
     class Index1(flask.views.View):
-        provide_automatic_options = False
+        provide_automatic_options=False
 
         def dispatch_request(self):
             return 'Hello World!'
 
     app.add_url_rule('/',view_func=Index1.as_view('index'))
-    c = app.test_client()
-    rv = c.open('/',method='OPTIONS')
+    c=app.test_client()
+    rv=c.open('/',method='OPTIONS')
     assert rv.status_code == 405
 
-    app = flask.Flask(__name__)
+    app=flask.Flask(__name__)
 
     class Index2(flask.views.View):
-        methods = ['OPTIONS']
-        provide_automatic_options = True
+        methods=['OPTIONS']
+        provide_automatic_options=True
 
         def dispatch_request(self):
             return 'Hello World!'
 
     app.add_url_rule('/',view_func=Index2.as_view('index'))
-    c = app.test_client()
-    rv = c.open('/',method='OPTIONS')
+    c=app.test_client()
+    rv=c.open('/',method='OPTIONS')
     assert sorted(rv.allow) == ['OPTIONS']
 
-    app = flask.Flask(__name__)
+    app=flask.Flask(__name__)
 
     class Index3(flask.views.View):
         def dispatch_request(self):
             return 'Hello World!'
 
     app.add_url_rule('/',view_func=Index3.as_view('index'))
-    c = app.test_client()
-    rv = c.open('/',method='OPTIONS')
+    c=app.test_client()
+    rv=c.open('/',method='OPTIONS')
     assert 'OPTIONS' in rv.allow
 
 
@@ -159,10 +159,10 @@ def test_implicit_head(app,client):
             })
 
     app.add_url_rule('/',view_func=Index.as_view('index'))
-    rv = client.get('/')
+    rv=client.get('/')
     assert rv.data == b'Blub'
     assert rv.headers['X-Method'] == 'GET'
-    rv = client.head('/')
+    rv=client.head('/')
     assert rv.data == b''
     assert rv.headers['X-Method'] == 'HEAD'
 
@@ -176,18 +176,18 @@ def test_explicit_head(app,client):
             return flask.Response('',headers={'X-Method': 'HEAD'})
 
     app.add_url_rule('/',view_func=Index.as_view('index'))
-    rv = client.get('/')
+    rv=client.get('/')
     assert rv.data == b'GET'
-    rv = client.head('/')
+    rv=client.head('/')
     assert rv.data == b''
     assert rv.headers['X-Method'] == 'HEAD'
 
 
 def test_endpoint_override(app):
-    app.debug = True
+    app.debug=True
 
     class Index(flask.views.View):
-        methods = ['GET','POST']
+        methods=['GET','POST']
 
         def dispatch_request(self):
             return flask.request.method
@@ -230,7 +230,7 @@ def test_remove_method_from_parent(app,client):
             return 'POST'
 
     class View(GetView,OtherView):
-        methods = ['GET']
+        methods=['GET']
 
     app.add_url_rule('/',view_func=View.as_view('index'))
 
