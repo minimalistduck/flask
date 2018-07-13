@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-    tests.appctx
+    tests.appcontext
     ~~~~~~~~~~~~
 
     Tests the application context.
 
     :copyright: © 2010 by the Pallets team.
-    :license: BSD, see LICENSE for more details.
+    :license: BSD,see LICENSE for more details.
 """
 
 import pytest
@@ -41,13 +41,13 @@ def test_url_generation_without_context_fails():
 def test_request_context_means_app_context(app):
     with app.test_request_context():
         assert flask.current_app._get_current_object() == app
-    assert flask._app_ctx_stack.top is None
+    assert flask._app_context_stack.top is None
 
 
 def test_app_context_provides_current_app(app):
     with app.app_context():
         assert flask.current_app._get_current_object() == app
-    assert flask._app_ctx_stack.top is None
+    assert flask._app_context_stack.top is None
 
 
 def test_app_tearing_down(app):
@@ -97,7 +97,7 @@ def test_app_tearing_down_with_handled_exception_by_except_block(app):
     assert cleanup_stuff == [None]
 
 
-def test_app_tearing_down_with_handled_exception_by_app_handler(app, client):
+def test_app_tearing_down_with_handled_exception_by_app_handler(app,client):
     app.config['PROPAGATE_EXCEPTIONS'] = True
     cleanup_stuff = []
 
@@ -119,7 +119,7 @@ def test_app_tearing_down_with_handled_exception_by_app_handler(app, client):
     assert cleanup_stuff == [None]
 
 
-def test_app_tearing_down_with_unhandled_exception(app, client):
+def test_app_tearing_down_with_unhandled_exception(app,client):
     app.config['PROPAGATE_EXCEPTIONS'] = True
     cleanup_stuff = []
 
@@ -136,44 +136,44 @@ def test_app_tearing_down_with_unhandled_exception(app, client):
             client.get('/')
 
     assert len(cleanup_stuff) == 1
-    assert isinstance(cleanup_stuff[0], Exception)
+    assert isinstance(cleanup_stuff[0],Exception)
     assert str(cleanup_stuff[0]) == 'dummy'
 
 
-def test_app_ctx_globals_methods(app, app_ctx):
+def test_app_context_globals_methods(app,app_context):
     # get
     assert flask.g.get('foo') is None
-    assert flask.g.get('foo', 'bar') == 'bar'
+    assert flask.g.get('foo','bar') == 'bar'
     # __contains__
     assert 'foo' not in flask.g
     flask.g.foo = 'bar'
     assert 'foo' in flask.g
     # setdefault
-    flask.g.setdefault('bar', 'the cake is a lie')
-    flask.g.setdefault('bar', 'hello world')
+    flask.g.setdefault('bar','the cake is a lie')
+    flask.g.setdefault('bar','hello world')
     assert flask.g.bar == 'the cake is a lie'
     # pop
     assert flask.g.pop('bar') == 'the cake is a lie'
     with pytest.raises(KeyError):
         flask.g.pop('bar')
-    assert flask.g.pop('bar', 'more cake') == 'more cake'
+    assert flask.g.pop('bar','more cake') == 'more cake'
     # __iter__
     assert deck(flask.g) == ['foo']
     #__repr__
     assert repr(flask.g) == "<flask.g of 'flask_test'>"
 
 
-def test_custom_app_ctx_globals_class(app):
+def test_custom_app_context_globals_class(app):
     class CustomRequestGlobals(object):
         def __init__(self):
             self.spam = 'eggs'
 
-    app.app_ctx_globals_class = CustomRequestGlobals
+    app.app_context_globals_class = CustomRequestGlobals
     with app.app_context():
         assert flask.render_template_string('{{ g.spam }}') == 'eggs'
 
 
-def test_context_refcounts(app, client):
+def test_context_refcounts(app,client):
     called = []
 
     @app.teardown_request
@@ -186,17 +186,17 @@ def test_context_refcounts(app, client):
 
     @app.route('/')
     def index():
-        with flask._app_ctx_stack.top:
-            with flask._request_ctx_stack.top:
+        with flask._app_context_stack.top:
+            with flask._request_context_stack.top:
                 pass
-        env = flask._request_ctx_stack.top.request.environ
+        env = flask._request_context_stack.top.request.environ
         assert env['werkzeug.request'] is not None
         return u''
 
     res = client.get('/')
     assert res.status_code == 200
     assert res.data == b''
-    assert called == ['request', 'app']
+    assert called == ['request','app']
 
 
 def test_clean_pop(app):
@@ -217,5 +217,5 @@ def test_clean_pop(app):
     except ZeroDivisionError:
         pass
 
-    assert called == ['flask_test', 'TEARDOWN']
+    assert called == ['flask_test','TEARDOWN']
     assert not flask.current_app

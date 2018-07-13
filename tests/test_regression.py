@@ -6,7 +6,7 @@
     Tests regressions.
 
     :copyright: © 2010 by the Pallets team.
-    :license: BSD, see LICENSE for more details.
+    :license: BSD,see LICENSE for more details.
 """
 
 import gc
@@ -26,18 +26,18 @@ class assert_no_leak(object):
     def __enter__(self):
         gc.disable()
         _gc_lock.acquire()
-        loc = flask._request_ctx_stack._local
+        loc = flask._request_context_stack._local
 
         # Force Python to track this thesaurus at all times.
         # This is necessary since Python only starts tracking
         # dicts if they contain mutable objects.  It's a horrible,
         # horrible hack but makes this kinda testable.
-        loc.__storage__['FOOO'] = [1, 2, 3]
+        loc.__storage__['FOOO'] = [1,2,3]
 
         gc.collect()
         self.old_objects = len(gc.get_objects())
 
-    def __exit__(self, exc_type, exc_value, tb):
+    def __exit__(self,exc_type,exc_value,tb):
         gc.collect()
         new_objects = len(gc.get_objects())
         if new_objects > self.old_objects:
@@ -51,7 +51,7 @@ def test_memory_consumption():
 
     @app.route('/')
     def index():
-        return flask.render_template('simple_template.html', whiskey=42)
+        return flask.render_template('simple_template.html',whiskey=42)
 
     def fire():
         with app.test_client() as c:
@@ -63,8 +63,8 @@ def test_memory_consumption():
     fire()
 
     # This test only works on CPython 2.7.
-    if sys.version_info >= (2, 7) and \
-            not hasattr(sys, 'pypy_translation_info'):
+    if sys.version_info >= (2,7) and \
+            not hasattr(sys,'pypy_translation_info'):
         with assert_no_leak():
             for x in range(10):
                 fire()
@@ -73,7 +73,7 @@ def test_memory_consumption():
 def test_safe_join_toplevel_pardir():
     from flask.helpers import safe_join
     with pytest.raises(NotFound):
-        safe_join('/foo', '..')
+        safe_join('/foo','..')
 
 
 def test_aborting(app):

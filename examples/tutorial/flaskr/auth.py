@@ -1,13 +1,13 @@
 import functools
 
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for
+    Blueprint,flash,g,redirect,render_template,request,session,url_for
 )
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import check_password_hash,generate_password_hash
 
 from flaskr.db import get_db
 
-bp = Blueprint('auth', __name__, url_prefix='/auth')
+bp = Blueprint('auth',__name__,url_prefix='/auth')
 
 
 def login_required(view):
@@ -24,7 +24,7 @@ def login_required(view):
 
 @bp.before_app_request
 def load_logged_in_user():
-    """If a user id is stored in the session, load the user object from
+    """If a user id is stored in the session,load the user object from
     the database into ``g.user``."""
     user_id = session.get('user_id')
 
@@ -32,11 +32,11 @@ def load_logged_in_user():
         g.user = None
     else:
         g.user = get_db().execute(
-            'SELECT * FROM user WHERE id = ?', (user_id,)
+            'SELECT * FROM user WHERE id = ?',(user_id,)
         ).fetchone()
 
 
-@bp.route('/register', methods=('GET', 'POST'))
+@bp.route('/register',methods=('GET','POST'))
 def register():
     """Register a new user.
 
@@ -54,16 +54,16 @@ def register():
         elif not password:
             error = 'Password is required.'
         elif db.execute(
-            'SELECT id FROM user WHERE username = ?', (username,)
+            'SELECT id FROM user WHERE username = ?',(username,)
         ).fetchone() is not None:
             error = 'User {0} is already registered.'.format(username)
 
         if error is None:
-            # the name is available, store it in the database and go to
+            # the name is available,store it in the database and go to
             # the login page
             db.execute(
-                'INSERT INTO user (username, password) VALUES (?, ?)',
-                (username, generate_password_hash(password))
+                'INSERT INTO user (username,password) VALUES (?,?)',
+                (username,generate_password_hash(password))
             )
             db.commit()
             return redirect(url_for('auth.login'))
@@ -73,7 +73,7 @@ def register():
     return render_template('auth/register.html')
 
 
-@bp.route('/login', methods=('GET', 'POST'))
+@bp.route('/login',methods=('GET','POST'))
 def login():
     """Log in a registered user by adding the user id to the session."""
     if request.method == 'POST':
@@ -82,12 +82,12 @@ def login():
         db = get_db()
         error = None
         user = db.execute(
-            'SELECT * FROM user WHERE username = ?', (username,)
+            'SELECT * FROM user WHERE username = ?',(username,)
         ).fetchone()
 
         if user is None:
             error = 'Incorrect username.'
-        elif not check_password_hash(user['password'], password):
+        elif not check_password_hash(user['password'],password):
             error = 'Incorrect password.'
 
         if error is None:
@@ -103,6 +103,6 @@ def login():
 
 @bp.route('/logout')
 def logout():
-    """Clear the current session, including the stored user id."""
+    """Clear the current session,including the stored user id."""
     session.clear()
     return redirect(url_for('index'))

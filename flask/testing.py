@@ -7,7 +7,7 @@
     and usually not used in production environments.
 
     :copyright: © 2010 by the Pallets team.
-    :license: BSD, see LICENSE for more details.
+    :license: BSD,see LICENSE for more details.
 """
 
 import werkzeug
@@ -15,29 +15,29 @@ from contextlib import contextmanager
 
 from click.testing import CliRunner
 from flask.cli import ScriptInfo
-from werkzeug.test import Client, EnvironBuilder
-from flask import _request_ctx_stack
+from werkzeug.test import Client,EnvironBuilder
+from flask import _request_context_stack
 from flask.json import dumps as json_dumps
 from werkzeug.urls import url_parse
 
 
 def make_test_environ_builder(
-    app, path='/', base_url=None, subdomain=None, url_scheme=None,
-    *args, **kwargs
+    app,path='/',base_url=None,subdomain=None,url_scheme=None,
+    *args,**kwargs
 ):
-    """Create a :class:`~werkzeug.test.EnvironBuilder`, taking some
+    """Create a :class:`~werkzeug.test.EnvironBuilder`,taking some
     defaults from the application.
 
     :param app: The Flask application to configure the environment from.
     :param path: URL path being requested.
-    :param base_url: Base URL where the app is being served, which
-        ``path`` is relative to. If not given, built from
-        :data:`PREFERRED_URL_SCHEME`, ``subdomain``,
-        :data:`SERVER_NAME`, and :data:`APPLICATION_ROOT`.
+    :param base_url: Base URL where the app is being served,which
+        ``path`` is relative to. If not given,built from
+        :data:`PREFERRED_URL_SCHEME`,``subdomain``,
+        :data:`SERVER_NAME`,and :data:`APPLICATION_ROOT`.
     :param subdomain: Subdomain name to append to :data:`SERVER_NAME`.
     :param url_scheme: Scheme to use instead of
         :data:`PREFERRED_URL_SCHEME`.
-    :param json: If given, this is serialized as JSON and passed as
+    :param json: If given,this is serialized as JSON and passed as
         ``data``. Also defaults ``content_type`` to
         ``application/json``.
     :param args: other positional arguments passed to
@@ -49,14 +49,14 @@ def make_test_environ_builder(
     assert (
         not (base_url or subdomain or url_scheme)
         or (base_url is not None) != bool(subdomain or url_scheme)
-    ), 'Cannot pass "subdomain" or "url_scheme" with "base_url".'
+    ),'Cannot pass "subdomain" or "url_scheme" with "base_url".'
 
     if base_url is None:
         http_host = app.config.get('SERVER_NAME') or 'localhost'
         app_root = app.config['APPLICATION_ROOT']
 
         if subdomain:
-            http_host = '{0}.{1}'.format(subdomain, http_host)
+            http_host = '{0}.{1}'.format(subdomain,http_host)
 
         if url_scheme is None:
             url_scheme = app.config['PREFERRED_URL_SCHEME']
@@ -70,11 +70,11 @@ def make_test_environ_builder(
         path = url.path
 
         if url.query:
-            sep = b'?' if isinstance(url.query, bytes) else '?'
+            sep = b'?' if isinstance(url.query,bytes) else '?'
             path += sep + url.query
 
     if 'json' in kwargs:
-        assert 'data' not in kwargs, (
+        assert 'data' not in kwargs,(
             "Client cannot provide both 'json' and 'data'."
         )
 
@@ -85,7 +85,7 @@ def make_test_environ_builder(
         if 'content_type' not in kwargs:
             kwargs['content_type'] = 'application/json'
 
-    return EnvironBuilder(path, base_url, *args, **kwargs)
+    return EnvironBuilder(path,base_url,*args,**kwargs)
 
 
 class FlaskClient(Client):
@@ -96,7 +96,7 @@ class FlaskClient(Client):
     :class:`werkzeug.test.Client`.
 
     .. versionchanged:: 0.12
-       `app.test_client()` includes preset default environment, which can be
+       `app.test_client()` includes preset default environment,which can be
        set after instantiation of the `app.test_client()` object in
        `client.environ_base`.
 
@@ -105,15 +105,15 @@ class FlaskClient(Client):
 
     preserve_context = False
 
-    def __init__(self, *args, **kwargs):
-        super(FlaskClient, self).__init__(*args, **kwargs)
+    def __init__(self,*args,**kwargs):
+        super(FlaskClient,self).__init__(*args,**kwargs)
         self.environ_base = {
             "REMOTE_ADDR": "127.0.0.1",
             "HTTP_USER_AGENT": "werkzeug/" + werkzeug.__version__
         }
 
     @contextmanager
-    def session_transaction(self, *args, **kwargs):
+    def session_transaction(self,*args,**kwargs):
         """When used in combination with a ``with`` statement this opens a
         session transaction.  This can be used to modify the session that
         the test client uses.  Once the ``with`` block is left the session is
@@ -134,12 +134,12 @@ class FlaskClient(Client):
             raise RuntimeError('Session transactions only make sense '
                                'with cookies enabled.')
         app = self.application
-        environ_overrides = kwargs.setdefault('environ_overrides', {})
+        environ_overrides = kwargs.setdefault('environ_overrides',{})
         self.cookie_jar.inject_wsgi(environ_overrides)
-        outer_reqctx = _request_ctx_stack.top
-        with app.test_request_context(*args, **kwargs) as c:
+        outer_reqcontext = _request_context_stack.top
+        with app.test_request_context(*args,**kwargs) as c:
             session_interface = app.session_interface
-            sess = session_interface.open_session(app, c.request)
+            sess = session_interface.open_session(app,c.request)
             if sess is None:
                 raise RuntimeError('Session backend did not open a session. '
                                    'Check the configuration')
@@ -151,41 +151,41 @@ class FlaskClient(Client):
             # behavior.  It's important to not use the push and pop
             # methods of the actual request context object since that would
             # mean that cleanup handlers are called
-            _request_ctx_stack.push(outer_reqctx)
+            _request_context_stack.push(outer_reqcontext)
             try:
                 yield sess
             finally:
-                _request_ctx_stack.pop()
+                _request_context_stack.pop()
 
             resp = app.response_class()
             if not session_interface.is_null_session(sess):
-                session_interface.save_session(app, sess, resp)
+                session_interface.save_session(app,sess,resp)
             headers = resp.get_wsgi_headers(c.request.environ)
-            self.cookie_jar.extract_wsgi(c.request.environ, headers)
+            self.cookie_jar.extract_wsgi(c.request.environ,headers)
 
-    def open(self, *args, **kwargs):
-        as_tuple = kwargs.pop('as_tuple', False)
-        buffered = kwargs.pop('buffered', False)
-        follow_redirects = kwargs.pop('follow_redirects', False)
+    def open(self,*args,**kwargs):
+        as_tuple = kwargs.pop('as_tuple',False)
+        buffered = kwargs.pop('buffered',False)
+        follow_redirects = kwargs.pop('follow_redirects',False)
 
         if (
             not kwargs and len(args) == 1
-            and isinstance(args[0], (EnvironBuilder, dict))
+            and isinstance(args[0],(EnvironBuilder,dict))
         ):
             environ = self.environ_base.copy()
 
-            if isinstance(args[0], EnvironBuilder):
+            if isinstance(args[0],EnvironBuilder):
                 environ.update(args[0].get_environ())
             else:
                 environ.update(args[0])
 
             environ['flask._preserve_context'] = self.preserve_context
         else:
-            kwargs.setdefault('environ_overrides', {}) \
+            kwargs.setdefault('environ_overrides',{}) \
                 ['flask._preserve_context'] = self.preserve_context
-            kwargs.setdefault('environ_base', self.environ_base)
+            kwargs.setdefault('environ_base',self.environ_base)
             builder = make_test_environ_builder(
-                self.application, *args, **kwargs
+                self.application,*args,**kwargs
             )
 
             try:
@@ -194,7 +194,7 @@ class FlaskClient(Client):
                 builder.close()
 
         return Client.open(
-            self, environ,
+            self,environ,
             as_tuple=as_tuple,
             buffered=buffered,
             follow_redirects=follow_redirects
@@ -206,13 +206,13 @@ class FlaskClient(Client):
         self.preserve_context = True
         return self
 
-    def __exit__(self, exc_type, exc_value, tb):
+    def __exit__(self,exc_type,exc_value,tb):
         self.preserve_context = False
 
         # on exit we want to clean up earlier.  Normally the request context
         # stays preserved until the next request in the same thread comes
         # in.  See RequestGlobals.push() for the general behavior.
-        top = _request_ctx_stack.top
+        top = _request_context_stack.top
         if top is not None and top.preserved:
             top.pop()
 
@@ -222,16 +222,16 @@ class FlaskCliRunner(CliRunner):
     CLI commands. Typically created using
     :meth:`~flask.Flask.test_cli_runner`. See :ref:`testing-cli`.
     """
-    def __init__(self, app, **kwargs):
+    def __init__(self,app,**kwargs):
         self.app = app
-        super(FlaskCliRunner, self).__init__(**kwargs)
+        super(FlaskCliRunner,self).__init__(**kwargs)
 
-    def invoke(self, cli=None, args=None, **kwargs):
+    def invoke(self,cli=None,args=None,**kwargs):
         """Invokes a CLI command in an isolated environment. See
         :meth:`CliRunner.invoke <click.testing.CliRunner.invoke>` for
         full method documentation. See :ref:`testing-cli` for examples.
 
-        If the ``obj`` argument is not given, passes an instance of
+        If the ``obj`` argument is not given,passes an instance of
         :class:`~flask.cli.ScriptInfo` that knows how to load the Flask
         app being tested.
 
@@ -247,4 +247,4 @@ class FlaskCliRunner(CliRunner):
         if 'obj' not in kwargs:
             kwargs['obj'] = ScriptInfo(create_app=lambda: self.app)
 
-        return super(FlaskCliRunner, self).invoke(cli, args, **kwargs)
+        return super(FlaskCliRunner,self).invoke(cli,args,**kwargs)

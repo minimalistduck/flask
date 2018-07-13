@@ -6,7 +6,7 @@
     Alias for flask.run for the command line.
 
     :copyright: © 2010 by the Pallets team.
-    :license: BSD, see LICENSE for more details.
+    :license: BSD,see LICENSE for more details.
 """
 
 if __name__ == '__main__':

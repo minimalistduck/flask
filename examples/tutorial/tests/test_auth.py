@@ -1,15 +1,15 @@
 import pytest
-from flask import g, session
+from flask import g,session
 from flaskr.db import get_db
 
 
-def test_register(client, app):
+def test_register(client,app):
     # test that viewing the page renders without template errors
     assert client.get('/auth/register').status_code == 200
 
     # test that successful registration redirects to the login page
     response = client.post(
-        '/auth/register', data={'username': 'a', 'password': 'a'}
+        '/auth/register',data={'username': 'a','password': 'a'}
     )
     assert 'http://localhost/auth/login' == response.headers['Location']
 
@@ -20,20 +20,20 @@ def test_register(client, app):
         ).fetchone() is not None
 
 
-@pytest.mark.parametrize(('username', 'password', 'message'), (
-    ('', '', b'Username is required.'),
-    ('a', '', b'Password is required.'),
-    ('test', 'test', b'already registered'),
+@pytest.mark.parametrize(('username','password','message'),(
+    ('','',b'Username is required.'),
+    ('a','',b'Password is required.'),
+    ('test','test',b'already registered'),
 ))
-def test_register_validate_input(client, username, password, message):
+def test_register_validate_input(client,username,password,message):
     response = client.post(
         '/auth/register',
-        data={'username': username, 'password': password}
+        data={'username': username,'password': password}
     )
     assert message in response.data
 
 
-def test_login(client, auth):
+def test_login(client,auth):
     # test that viewing the page renders without template errors
     assert client.get('/auth/login').status_code == 200
 
@@ -49,16 +49,16 @@ def test_login(client, auth):
         assert g.user['username'] == 'test'
 
 
-@pytest.mark.parametrize(('username', 'password', 'message'), (
-    ('a', 'test', b'Incorrect username.'),
-    ('test', 'a', b'Incorrect password.'),
+@pytest.mark.parametrize(('username','password','message'),(
+    ('a','test',b'Incorrect username.'),
+    ('test','a',b'Incorrect password.'),
 ))
-def test_login_validate_input(auth, username, password, message):
-    response = auth.login(username, password)
+def test_login_validate_input(auth,username,password,message):
+    response = auth.login(username,password)
     assert message in response.data
 
 
-def test_logout(client, auth):
+def test_logout(client,auth):
     auth.login()
 
     with client:

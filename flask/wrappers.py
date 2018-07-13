@@ -6,11 +6,11 @@
     Implements the WSGI wrappers (request and response).
 
     :copyright: © 2010 by the Pallets team.
-    :license: BSD, see LICENSE for more details.
+    :license: BSD,see LICENSE for more details.
 """
 
 from werkzeug.exceptions import BadRequest
-from werkzeug.wrappers import Request as RequestBase, Response as ResponseBase
+from werkzeug.wrappers import Request as RequestBase,Response as ResponseBase
 
 from flask import json
 from flask.globals import current_app
@@ -23,11 +23,11 @@ class JSONMixin(object):
     .. versionadded:: 1.0
     """
 
-    _cached_json = (Ellipsis, Ellipsis)
+    _cached_json = (Ellipsis,Ellipsis)
 
     @property
     def is_json(self):
-        """Check if the mimetype indicates JSON data, either
+        """Check if the mimetype indicates JSON data,either
         :mimetype:`application/json` or :mimetype:`application/*+json`.
 
         .. versionadded:: 0.11
@@ -41,19 +41,19 @@ class JSONMixin(object):
     @property
     def json(self):
         """This will contain the parsed JSON data if the mimetype indicates
-        JSON (:mimetype:`application/json`, see :meth:`is_json`), otherwise it
+        JSON (:mimetype:`application/json`,see :meth:`is_json`),otherwise it
         will be ``None``.
         """
         return self.get_json()
 
-    def _get_data_for_json(self, cache):
+    def _get_data_for_json(self,cache):
         return self.get_data(cache=cache)
 
-    def get_json(self, force=False, silent=False, cache=True):
+    def get_json(self,force=False,silent=False,cache=True):
         """Parse and return the data as JSON. If the mimetype does not
-        indicate JSON (:mimetype:`application/json`, see
-        :meth:`is_json`), this returns ``None`` unless ``force`` is
-        true. If parsing fails, :meth:`on_json_loading_failed` is called
+        indicate JSON (:mimetype:`application/json`,see
+        :meth:`is_json`),this returns ``None`` unless ``force`` is
+        true. If parsing fails,:meth:`on_json_loading_failed` is called
         and its return value is used as the return value.
 
         :param force: Ignore the mimetype and always try to parse JSON.
@@ -76,22 +76,22 @@ class JSONMixin(object):
             if silent:
                 rv = None
                 if cache:
-                    normal_rv, _ = self._cached_json
-                    self._cached_json = (normal_rv, rv)
+                    normal_rv,_ = self._cached_json
+                    self._cached_json = (normal_rv,rv)
             else:
                 rv = self.on_json_loading_failed(e)
                 if cache:
-                    _, silent_rv = self._cached_json
-                    self._cached_json = (rv, silent_rv)
+                    _,silent_rv = self._cached_json
+                    self._cached_json = (rv,silent_rv)
         else:
             if cache:
-                self._cached_json = (rv, rv)
+                self._cached_json = (rv,rv)
 
         return rv
 
-    def on_json_loading_failed(self, e):
+    def on_json_loading_failed(self,e):
         """Called if :meth:`get_json` parsing fails and isn't silenced. If
-        this method returns a value, it is used as the return value for
+        this method returns a value,it is used as the return value for
         :meth:`get_json`. The default implementation raises a
         :class:`BadRequest` exception.
 
@@ -108,7 +108,7 @@ class JSONMixin(object):
         raise BadRequest()
 
 
-class Request(RequestBase, JSONMixin):
+class Request(RequestBase,JSONMixin):
     """The request object used by default in Flask.  Remembers the
     matched endpoint and view arguments.
 
@@ -133,10 +133,10 @@ class Request(RequestBase, JSONMixin):
     url_rule = None
 
     #: A dict of view arguments that matched the request.  If an exception
-    #: happened when matching, this will be ``None``.
+    #: happened when matching,this will be ``None``.
     view_args = None
 
-    #: If matching the URL failed, this is the exception that will be
+    #: If matching the URL failed,this is the exception that will be
     #: raised / was raised as part of the request handling.  This is
     #: usually a :exc:`~werkzeug.exceptions.NotFound` exception or
     #: something similar.
@@ -152,7 +152,7 @@ class Request(RequestBase, JSONMixin):
     def endpoint(self):
         """The endpoint that matched the request.  This in combination with
         :attr:`view_args` can be used to reconstruct the same or a
-        modified URL.  If an exception happened when matching, this will
+        modified URL.  If an exception happened when matching,this will
         be ``None``.
         """
         if self.url_rule is not None:
@@ -162,7 +162,7 @@ class Request(RequestBase, JSONMixin):
     def blueprint(self):
         """The name of the current blueprint"""
         if self.url_rule and '.' in self.url_rule.endpoint:
-            return self.url_rule.endpoint.rsplit('.', 1)[0]
+            return self.url_rule.endpoint.rsplit('.',1)[0]
 
     def _load_form_data(self):
         RequestBase._load_form_data(self)
@@ -179,7 +179,7 @@ class Request(RequestBase, JSONMixin):
             attach_enctype_error_multidict(self)
 
 
-class Response(ResponseBase, JSONMixin):
+class Response(ResponseBase,JSONMixin):
     """The response object that is used by default in Flask.  Works like the
     response object from Werkzeug but is set to have an HTML mimetype by
     default.  Quite often you don't have to create this object yourself because
@@ -189,7 +189,7 @@ class Response(ResponseBase, JSONMixin):
     set :attr:`~flask.Flask.response_class` to your subclass.
 
     .. versionchanged:: 1.0
-        JSON support is added to the response, like the request. This is useful
+        JSON support is added to the response,like the request. This is useful
         when testing to get the test client response data as JSON.
 
     .. versionchanged:: 1.0
@@ -199,7 +199,7 @@ class Response(ResponseBase, JSONMixin):
 
     default_mimetype = 'text/html'
 
-    def _get_data_for_json(self, cache):
+    def _get_data_for_json(self,cache):
         return self.get_data()
 
     @property
@@ -213,4 +213,4 @@ class Response(ResponseBase, JSONMixin):
             return current_app.config['MAX_COOKIE_SIZE']
 
         # return Werkzeug's default when not in an app context
-        return super(Response, self).max_cookie_size
+        return super(Response,self).max_cookie_size

@@ -6,15 +6,15 @@
     This module provides class-based views inspired by the ones in Django.
 
     :copyright: © 2010 by the Pallets team.
-    :license: BSD, see LICENSE for more details.
+    :license: BSD,see LICENSE for more details.
 """
 
 from .globals import request
 from ._compat import with_metaclass
 
 
-http_method_funcs = frozenset(['get', 'post', 'head', 'options',
-                               'delete', 'put', 'trace', 'patch'])
+http_method_funcs = frozenset(['get','post','head','options',
+                               'delete','put','trace','patch'])
 
 
 class View(object):
@@ -27,10 +27,10 @@ class View(object):
         class MyView(View):
             methods = ['GET']
 
-            def dispatch_request(self, name):
+            def dispatch_request(self,name):
                 return 'Hello %s!' % name
 
-        app.add_url_rule('/hello/<name>', view_func=MyView.as_view('myview'))
+        app.add_url_rule('/hello/<name>',view_func=MyView.as_view('myview'))
 
     When you want to decorate a pluggable view you will have to either do that
     when the view function is created (by wrapping the return value of
@@ -74,7 +74,7 @@ class View(object):
         raise NotImplementedError()
 
     @classmethod
-    def as_view(cls, name, *class_args, **class_kwargs):
+    def as_view(cls,name,*class_args,**class_kwargs):
         """Converts the class into an actual view function that can be used
         with the routing system.  Internally this generates a function on the
         fly which will instantiate the :class:`View` on each request and call
@@ -83,9 +83,9 @@ class View(object):
         The arguments passed to :meth:`as_view` are forwarded to the
         constructor of the class.
         """
-        def view(*args, **kwargs):
-            self = view.view_class(*class_args, **class_kwargs)
-            return self.dispatch_request(*args, **kwargs)
+        def view(*args,**kwargs):
+            self = view.view_class(*class_args,**class_kwargs)
+            return self.dispatch_request(*args,**kwargs)
 
         if cls.decorators:
             view.__name__ = name
@@ -95,7 +95,7 @@ class View(object):
 
         # We attach the view class to the view function for two reasons:
         # first of all it allows us to easily figure out what class-based
-        # view this thing came from, secondly it's also used for instantiating
+        # view this thing came from,secondly it's also used for instantiating
         # the view class so you can actually replace it with something else
         # for testing purposes and debugging.
         view.view_class = cls
@@ -112,14 +112,14 @@ class MethodViewType(type):
     defines.
     """
 
-    def __init__(cls, name, bases, d):
-        super(MethodViewType, cls).__init__(name, bases, d)
+    def __init__(cls,name,bases,d):
+        super(MethodViewType,cls).__init__(name,bases,d)
 
         if 'methods' not in d:
             methods = set()
 
             for key in http_method_funcs:
-                if hasattr(cls, key):
+                if hasattr(cls,key):
                     methods.add(key.upper())
 
             # If we have no method at all in there we don't want to add a
@@ -130,29 +130,29 @@ class MethodViewType(type):
                 cls.methods = methods
 
 
-class MethodView(with_metaclass(MethodViewType, View)):
+class MethodView(with_metaclass(MethodViewType,View)):
     """A class-based view that dispatches request methods to the corresponding
-    class methods. For example, if you implement a ``get`` method, it will be
+    class methods. For example,if you implement a ``get`` method,it will be
     used to handle ``GET`` requests. ::
 
         class CounterAPI(MethodView):
             def get(self):
-                return session.get('counter', 0)
+                return session.get('counter',0)
 
             def post(self):
-                session['counter'] = session.get('counter', 0) + 1
+                session['counter'] = session.get('counter',0) + 1
                 return 'OK'
 
-        app.add_url_rule('/counter', view_func=CounterAPI.as_view('counter'))
+        app.add_url_rule('/counter',view_func=CounterAPI.as_view('counter'))
     """
 
-    def dispatch_request(self, *args, **kwargs):
-        meth = getattr(self, request.method.lower(), None)
+    def dispatch_request(self,*args,**kwargs):
+        meth = getattr(self,request.method.lower(),None)
 
         # If the request method is HEAD and we don't have a handler for it
         # retry with GET.
         if meth is None and request.method == 'HEAD':
-            meth = getattr(self, 'get', None)
+            meth = getattr(self,'get',None)
 
-        assert meth is not None, 'Unimplemented method %r' % request.method
-        return meth(*args, **kwargs)
+        assert meth is not None,'Unimplemented method %r' % request.method
+        return meth(*args,**kwargs)

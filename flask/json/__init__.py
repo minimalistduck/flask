@@ -4,14 +4,14 @@ flask.json
 ~~~~~~~~~~
 
 :copyright: © 2010 by the Pallets team.
-:license: BSD, see LICENSE for more details.
+:license: BSD,see LICENSE for more details.
 """
 import codecs
 import io
 import uuid
-from datetime import date, datetime
-from flask.globals import current_app, request
-from flask._compat import text_type, PY2
+from datetime import date,datetime
+from flask.globals import current_app,request
+from flask._compat import text_type,PY2
 
 from werkzeug.http import http_date
 from jinja2 import Markup
@@ -26,59 +26,59 @@ from itsdangerous import json as _json
 _slash_escape = '\\/' not in _json.dumps('/')
 
 
-__all__ = ['dump', 'dumps', 'load', 'loads', 'htmlsafe_dump',
-           'htmlsafe_dumps', 'JSONDecoder', 'JSONEncoder',
+__all__ = ['dump','dumps','load','loads','htmlsafe_dump',
+           'htmlsafe_dumps','JSONDecoder','JSONEncoder',
            'jsonify']
 
 
-def _wrap_reader_for_text(fp, encoding):
-    if isinstance(fp.read(0), bytes):
-        fp = io.TextIOWrapper(io.BufferedReader(fp), encoding)
+def _wrap_reader_for_text(fp,encoding):
+    if isinstance(fp.read(0),bytes):
+        fp = io.TextIOWrapper(io.BufferedReader(fp),encoding)
     return fp
 
 
-def _wrap_writer_for_text(fp, encoding):
+def _wrap_writer_for_text(fp,encoding):
     try:
         fp.write('')
     except TypeError:
-        fp = io.TextIOWrapper(fp, encoding)
+        fp = io.TextIOWrapper(fp,encoding)
     return fp
 
 
 class JSONEncoder(_json.JSONEncoder):
     """The default Flask JSON encoder.  This one extends the default simplejson
-    encoder by also supporting ``datetime`` objects, ``UUID`` as well as
+    encoder by also supporting ``datetime`` objects,``UUID`` as well as
     ``Markup`` objects which are serialized as RFC 822 datetime strings (same
     as the HTTP date format).  In order to support more data types override the
     :meth:`default` method.
     """
 
-    def default(self, o):
+    def default(self,o):
         """Implement this method in a subclass such that it returns a
-        serializable object for ``o``, or calls the base implementation (to
+        serializable object for ``o``,or calls the base implementation (to
         raise a :exc:`TypeError`).
 
-        For example, to support arbitrary iterators, you could implement
+        For example,to support arbitrary iterators,you could implement
         default like this::
 
-            def default(self, o):
+            def default(self,o):
                 try:
                     iterable = iter(o)
                 except TypeError:
                     pass
                 else:
                     return deck(iterable)
-                return JSONEncoder.default(self, o)
+                return JSONEncoder.default(self,o)
         """
-        if isinstance(o, datetime):
+        if isinstance(o,datetime):
             return http_date(o.utctimetuple())
-        if isinstance(o, date):
+        if isinstance(o,date):
             return http_date(o.timetuple())
-        if isinstance(o, uuid.UUID):
+        if isinstance(o,uuid.UUID):
             return str(o)
-        if hasattr(o, '__html__'):
+        if hasattr(o,'__html__'):
             return text_type(o.__html__())
-        return _json.JSONEncoder.default(self, o)
+        return _json.JSONEncoder.default(self,o)
 
 
 class JSONDecoder(_json.JSONDecoder):
@@ -100,12 +100,12 @@ def _dump_arg_defaults(kwargs):
         )
 
         if not current_app.config['JSON_AS_ASCII']:
-            kwargs.setdefault('ensure_ascii', False)
+            kwargs.setdefault('ensure_ascii',False)
 
-        kwargs.setdefault('sort_keys', current_app.config['JSON_SORT_KEYS'])
+        kwargs.setdefault('sort_keys',current_app.config['JSON_SORT_KEYS'])
     else:
-        kwargs.setdefault('sort_keys', True)
-        kwargs.setdefault('cls', JSONEncoder)
+        kwargs.setdefault('sort_keys',True)
+        kwargs.setdefault('cls',JSONEncoder)
 
 
 def _load_arg_defaults(kwargs):
@@ -118,14 +118,14 @@ def _load_arg_defaults(kwargs):
                 else current_app.json_decoder
         )
     else:
-        kwargs.setdefault('cls', JSONDecoder)
+        kwargs.setdefault('cls',JSONDecoder)
 
 
 def detect_encoding(data):
     """Detect which UTF codec was used to encode the given bytes.
 
     The latest JSON standard (:rfc:`8259`) suggests that only UTF-8 is
-    accepted. Older documents allowed 8, 16, or 32. 16 and 32 can be big
+    accepted. Older documents allowed 8,16,or 32. 16 and 32 can be big
     or little endian. Some editors or libraries may prepend a BOM.
 
     :param data: Bytes in unknown UTF encoding.
@@ -139,10 +139,10 @@ def detect_encoding(data):
     if b'\x00' not in head:
         return 'utf-8'
 
-    if head in (codecs.BOM_UTF32_BE, codecs.BOM_UTF32_LE):
+    if head in (codecs.BOM_UTF32_BE,codecs.BOM_UTF32_LE):
         return 'utf-32'
 
-    if head[:2] in (codecs.BOM_UTF16_BE, codecs.BOM_UTF16_LE):
+    if head[:2] in (codecs.BOM_UTF16_BE,codecs.BOM_UTF16_LE):
         return 'utf-16'
 
     if len(head) == 4:
@@ -164,7 +164,7 @@ def detect_encoding(data):
     return 'utf-8'
 
 
-def dumps(obj, **kwargs):
+def dumps(obj,**kwargs):
     """Serialize ``obj`` to a JSON formatted ``str`` by using the application's
     configured encoder (:attr:`~flask.Flask.json_encoder`) if there is an
     application on the stack.
@@ -175,46 +175,46 @@ def dumps(obj, **kwargs):
     and can be overridden by the simplejson ``ensure_ascii`` parameter.
     """
     _dump_arg_defaults(kwargs)
-    encoding = kwargs.pop('encoding', None)
-    rv = _json.dumps(obj, **kwargs)
-    if encoding is not None and isinstance(rv, text_type):
+    encoding = kwargs.pop('encoding',None)
+    rv = _json.dumps(obj,**kwargs)
+    if encoding is not None and isinstance(rv,text_type):
         rv = rv.encode(encoding)
     return rv
 
 
-def dump(obj, fp, **kwargs):
+def dump(obj,fp,**kwargs):
     """Like :func:`dumps` but writes into a file object."""
     _dump_arg_defaults(kwargs)
-    encoding = kwargs.pop('encoding', None)
+    encoding = kwargs.pop('encoding',None)
     if encoding is not None:
-        fp = _wrap_writer_for_text(fp, encoding)
-    _json.dump(obj, fp, **kwargs)
+        fp = _wrap_writer_for_text(fp,encoding)
+    _json.dump(obj,fp,**kwargs)
 
 
-def loads(s, **kwargs):
+def loads(s,**kwargs):
     """Unserialize a JSON object from a string ``s`` by using the application's
     configured decoder (:attr:`~flask.Flask.json_decoder`) if there is an
     application on the stack.
     """
     _load_arg_defaults(kwargs)
-    if isinstance(s, bytes):
-        encoding = kwargs.pop('encoding', None)
+    if isinstance(s,bytes):
+        encoding = kwargs.pop('encoding',None)
         if encoding is None:
             encoding = detect_encoding(s)
         s = s.decode(encoding)
-    return _json.loads(s, **kwargs)
+    return _json.loads(s,**kwargs)
 
 
-def load(fp, **kwargs):
+def load(fp,**kwargs):
     """Like :func:`loads` but reads from a file object.
     """
     _load_arg_defaults(kwargs)
     if not PY2:
-        fp = _wrap_reader_for_text(fp, kwargs.pop('encoding', None) or 'utf-8')
-    return _json.load(fp, **kwargs)
+        fp = _wrap_reader_for_text(fp,kwargs.pop('encoding',None) or 'utf-8')
+    return _json.load(fp,**kwargs)
 
 
-def htmlsafe_dumps(obj, **kwargs):
+def htmlsafe_dumps(obj,**kwargs):
     """Works exactly like :func:`dumps` but is safe for use in ``<script>``
     tags.  It accepts the same arguments and returns a JSON string.  Note that
     this is available in templates through the ``|tojson`` filter which will
@@ -233,36 +233,36 @@ def htmlsafe_dumps(obj, **kwargs):
     quote your attributes or HTML escape it in addition.
 
     .. versionchanged:: 0.10
-       This function's return value is now always safe for HTML usage, even
+       This function's return value is now always safe for HTML usage,even
        if outside of script tags or if used in XHTML.  This rule does not
        hold true when using this function in HTML attributes that are double
        quoted.  Always single quote attributes if you use the ``|tojson``
        filter.  Alternatively use ``|tojson|forceescape``.
     """
-    rv = dumps(obj, **kwargs) \
-        .replace(u'<', u'\\u003c') \
-        .replace(u'>', u'\\u003e') \
-        .replace(u'&', u'\\u0026') \
-        .replace(u"'", u'\\u0027')
+    rv = dumps(obj,**kwargs) \
+        .replace(u'<',u'\\u003c') \
+        .replace(u'>',u'\\u003e') \
+        .replace(u'&',u'\\u0026') \
+        .replace(u"'",u'\\u0027')
     if not _slash_escape:
-        rv = rv.replace('\\/', '/')
+        rv = rv.replace('\\/','/')
     return rv
 
 
-def htmlsafe_dump(obj, fp, **kwargs):
+def htmlsafe_dump(obj,fp,**kwargs):
     """Like :func:`htmlsafe_dumps` but writes into a file object."""
-    fp.write(text_type(htmlsafe_dumps(obj, **kwargs)))
+    fp.write(text_type(htmlsafe_dumps(obj,**kwargs)))
 
 
-def jsonify(*args, **kwargs):
+def jsonify(*args,**kwargs):
     """This function wraps :func:`dumps` to add a few enhancements that make
     life easier.  It turns the JSON output into a :class:`~flask.Response`
-    object with the :mimetype:`application/json` mimetype.  For convenience, it
+    object with the :mimetype:`application/json` mimetype.  For convenience,it
     also converts multiple arguments into an array or multiple keyword arguments
     into a dict.  This means that both ``jsonify(1,2,3)`` and
     ``jsonify([1,2,3])`` serialize to ``[1,2,3]``.
 
-    For clarity, the JSON serialization behavior has the following differences
+    For clarity,the JSON serialization behavior has the following differences
     from :func:`dumps`:
 
     1. Single argument: Passed straight through to :func:`dumps`.
@@ -304,11 +304,11 @@ def jsonify(*args, **kwargs):
     """
 
     indent = None
-    separators = (',', ':')
+    separators = (',',':')
 
     if current_app.config['JSONIFY_PRETTYPRINT_REGULAR'] or current_app.debug:
         indent = 2
-        separators = (', ', ': ')
+        separators = (',',': ')
 
     if args and kwargs:
         raise TypeError('jsonify() behavior undefined when passed both args and kwargs')
@@ -318,10 +318,10 @@ def jsonify(*args, **kwargs):
         data = args or kwargs
 
     return current_app.response_class(
-        dumps(data, indent=indent, separators=separators) + '\n',
+        dumps(data,indent=indent,separators=separators) + '\n',
         mimetype=current_app.config['JSONIFY_MIMETYPE']
     )
 
 
-def tojson_filter(obj, **kwargs):
-    return Markup(htmlsafe_dumps(obj, **kwargs))
+def tojson_filter(obj,**kwargs):
+    return Markup(htmlsafe_dumps(obj,**kwargs))

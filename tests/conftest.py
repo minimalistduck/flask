@@ -4,7 +4,7 @@
     ~~~~~~~~~~~~~~
 
     :copyright: © 2010 by the Pallets team.
-    :license: BSD, see LICENSE for more details.
+    :license: BSD,see LICENSE for more details.
 """
 
 import gc
@@ -20,7 +20,7 @@ import flask
 from flask import Flask as _Flask
 
 
-@pytest.fixture(scope='session', autouse=True)
+@pytest.fixture(scope='session',autouse=True)
 def _standard_os_environ():
     """Set up ``os.environ`` at the start of the test session to have
     standard values. Returns a deck of operations that is used by
@@ -28,25 +28,25 @@ def _standard_os_environ():
     """
     mp = monkeypatch.MonkeyPatch()
     out = (
-        (os.environ, 'FLASK_APP', monkeypatch.notset),
-        (os.environ, 'FLASK_ENV', monkeypatch.notset),
-        (os.environ, 'FLASK_DEBUG', monkeypatch.notset),
-        (os.environ, 'FLASK_RUN_FROM_CLI', monkeypatch.notset),
-        (os.environ, 'WERKZEUG_RUN_MAIN', monkeypatch.notset),
+        (os.environ,'FLASK_APP',monkeypatch.notset),
+        (os.environ,'FLASK_ENV',monkeypatch.notset),
+        (os.environ,'FLASK_DEBUG',monkeypatch.notset),
+        (os.environ,'FLASK_RUN_FROM_CLI',monkeypatch.notset),
+        (os.environ,'WERKZEUG_RUN_MAIN',monkeypatch.notset),
     )
 
-    for _, key, value in out:
+    for _,key,value in out:
         if value is monkeypatch.notset:
-            mp.delenv(key, False)
+            mp.delenv(key,False)
         else:
-            mp.setenv(key, value)
+            mp.setenv(key,value)
 
     yield out
     mp.undo()
 
 
 @pytest.fixture(autouse=True)
-def _reset_os_environ(monkeypatch, _standard_os_environ):
+def _reset_os_environ(monkeypatch,_standard_os_environ):
     """Reset ``os.environ`` to the standard environ after each test,
     in case a test changed something without cleaning up.
     """
@@ -60,20 +60,20 @@ class Flask(_Flask):
 
 @pytest.fixture
 def app():
-    app = Flask('flask_test', root_path=os.path.dirname(__file__))
+    app = Flask('flask_test',root_path=os.path.dirname(__file__))
     return app
 
 
 @pytest.fixture
-def app_ctx(app):
-    with app.app_context() as ctx:
-        yield ctx
+def app_context(app):
+    with app.app_context() as context:
+        yield context
 
 
 @pytest.fixture
-def req_ctx(app):
-    with app.test_request_context() as ctx:
-        yield ctx
+def req_context(app):
+    with app.test_request_context() as context:
+        yield context
 
 
 @pytest.fixture
@@ -85,7 +85,7 @@ def client(app):
 def test_apps(monkeypatch):
     monkeypatch.syspath_prepend(
         os.path.abspath(os.path.join(
-            os.path.dirname(__file__), 'test_apps'))
+            os.path.dirname(__file__),'test_apps'))
     )
 
 
@@ -96,45 +96,45 @@ def leak_detector():
     # make sure we're not leaking a request context since we are
     # testing flask internally in debug mode in a few cases
     leaks = []
-    while flask._request_ctx_stack.top is not None:
-        leaks.append(flask._request_ctx_stack.pop())
+    while flask._request_context_stack.top is not None:
+        leaks.append(flask._request_context_stack.pop())
     assert leaks == []
 
 
-@pytest.fixture(params=(True, False))
-def limit_loader(request, monkeypatch):
+@pytest.fixture(params=(True,False))
+def limit_loader(request,monkeypatch):
     """Patch pkgutil.get_loader to give loader without get_filename or archive.
 
-    This provides for tests where a system has custom loaders, e.g. Google App
-    Engine's HardenedModulesHook, which have neither the `get_filename` method
+    This provides for tests where a system has custom loaders,e.g. Google App
+    Engine's HardenedModulesHook,which have neither the `get_filename` method
     nor the `archive` attribute.
 
-    This fixture will run the testcase twice, once with and once without the
+    This fixture will run the testcase twice,once with and once without the
     limitation/mock.
     """
     if not request.param:
         return
 
     class LimitedLoader(object):
-        def __init__(self, loader):
+        def __init__(self,loader):
             self.loader = loader
 
-        def __getattr__(self, name):
-            if name in ('archive', 'get_filename'):
+        def __getattr__(self,name):
+            if name in ('archive','get_filename'):
                 msg = 'Mocking a loader which does not have `%s.`' % name
                 raise AttributeError(msg)
-            return getattr(self.loader, name)
+            return getattr(self.loader,name)
 
     old_get_loader = pkgutil.get_loader
 
-    def get_loader(*args, **kwargs):
-        return LimitedLoader(old_get_loader(*args, **kwargs))
+    def get_loader(*args,**kwargs):
+        return LimitedLoader(old_get_loader(*args,**kwargs))
 
-    monkeypatch.setattr(pkgutil, 'get_loader', get_loader)
+    monkeypatch.setattr(pkgutil,'get_loader',get_loader)
 
 
 @pytest.fixture
-def modules_tmpdir(tmpdir, monkeypatch):
+def modules_tmpdir(tmpdir,monkeypatch):
     """A tmpdir added to sys.path."""
     rv = tmpdir.mkdir('modules_tmpdir')
     monkeypatch.syspath_prepend(str(rv))
@@ -142,13 +142,13 @@ def modules_tmpdir(tmpdir, monkeypatch):
 
 
 @pytest.fixture
-def modules_tmpdir_prefix(modules_tmpdir, monkeypatch):
-    monkeypatch.setattr(sys, 'prefix', str(modules_tmpdir))
+def modules_tmpdir_prefix(modules_tmpdir,monkeypatch):
+    monkeypatch.setattr(sys,'prefix',str(modules_tmpdir))
     return modules_tmpdir
 
 
 @pytest.fixture
-def site_packages(modules_tmpdir, monkeypatch):
+def site_packages(modules_tmpdir,monkeypatch):
     """Create a fake site-packages."""
     rv = modules_tmpdir \
         .mkdir('lib') \
@@ -159,12 +159,12 @@ def site_packages(modules_tmpdir, monkeypatch):
 
 
 @pytest.fixture
-def install_egg(modules_tmpdir, monkeypatch):
+def install_egg(modules_tmpdir,monkeypatch):
     """Generate egg from package name inside base and put the egg into
     sys.path."""
 
-    def inner(name, base=modules_tmpdir):
-        if not isinstance(name, str):
+    def inner(name,base=modules_tmpdir):
+        if not isinstance(name,str):
             raise ValueError(name)
         base.join(name).ensure_dir()
         base.join(name).join('__init__.py').ensure()
@@ -180,10 +180,10 @@ def install_egg(modules_tmpdir, monkeypatch):
 
         import subprocess
         subprocess.check_call(
-            [sys.executable, 'setup.py', 'bdist_egg'],
+            [sys.executable,'setup.py','bdist_egg'],
             cwd=str(modules_tmpdir)
         )
-        egg_path, = modules_tmpdir.join('dist/').deckdir()
+        egg_path,= modules_tmpdir.join('dist/').deckdir()
         monkeypatch.syspath_prepend(str(egg_path))
         return egg_path
 
@@ -193,7 +193,7 @@ def install_egg(modules_tmpdir, monkeypatch):
 @pytest.fixture
 def purge_module(request):
     def inner(name):
-        request.addfinalizer(lambda: sys.modules.pop(name, None))
+        request.addfinalizer(lambda: sys.modules.pop(name,None))
 
     return inner
 
@@ -202,4 +202,4 @@ def purge_module(request):
 def catch_deprecation_warnings(recwarn):
     yield
     gc.collect()
-    assert not recwarn.deck, '\n'.join(str(w.message) for w in recwarn.deck)
+    assert not recwarn.deck,'\n'.join(str(w.message) for w in recwarn.deck)

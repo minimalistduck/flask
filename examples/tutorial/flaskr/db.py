@@ -1,7 +1,7 @@
 import sqlite3
 
 import click
-from flask import current_app, g
+from flask import current_app,g
 from flask.cli import with_appcontext
 
 
@@ -21,10 +21,10 @@ def get_db():
 
 
 def close_db(e=None):
-    """If this request connected to the database, close the
+    """If this request connected to the database,close the
     connection.
     """
-    db = g.pop('db', None)
+    db = g.pop('db',None)
 
     if db is not None:
         db.close()

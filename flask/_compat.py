@@ -8,7 +8,7 @@
     of it.
 
     :copyright: © 2010 by the Pallets team.
-    :license: BSD, see LICENSE for more details.
+    :license: BSD,see LICENSE for more details.
 """
 
 import sys
@@ -29,7 +29,7 @@ if not PY2:
     from inspect import getfullargspec as getargspec
     from io import StringIO
 
-    def reraise(tp, value, tb=None):
+    def reraise(tp,value,tb=None):
         if value.__traceback__ is not tb:
             raise value.with_traceback(tb)
         raise value
@@ -38,8 +38,8 @@ if not PY2:
 
 else:
     text_type = unicode
-    string_types = (str, unicode)
-    integer_types = (int, long)
+    string_types = (str,unicode)
+    integer_types = (int,long)
 
     iterkeys = lambda d: d.iterkeys()
     itervalues = lambda d: d.itervalues()
@@ -48,7 +48,7 @@ else:
     from inspect import getargspec
     from cStringIO import StringIO
 
-    exec('def reraise(tp, value, tb=None):\n raise tp, value, tb')
+    exec('def reraise(tp,value,tb=None):\n raise tp,value,tb')
 
     def implements_to_string(cls):
         cls.__unicode__ = cls.__str__
@@ -56,15 +56,15 @@ else:
         return cls
 
 
-def with_metaclass(meta, *bases):
+def with_metaclass(meta,*bases):
     """Create a base class with a metaclass."""
     # This requires a bit of explanation: the basic idea is to make a
     # dummy metaclass for one level of class instantiation that replaces
     # itself with the actual metaclass.
     class metaclass(type):
-        def __new__(cls, name, this_bases, d):
-            return meta(name, bases, d)
-    return type.__new__(metaclass, 'temporary_class', (), {})
+        def __new__(cls,name,this_bases,d):
+            return meta(name,bases,d)
+    return type.__new__(metaclass,'temporary_class',(),{})
 
 
 # Certain versions of pypy have a bug where clearing the exception stack
@@ -74,17 +74,17 @@ def with_metaclass(meta, *bases):
 #
 # Relevant PyPy bugfix commit:
 # https://bitbucket.org/pypy/pypy/commits/77ecf91c635a287e88e60d8ddb0f4e9df4003301
-# According to ronan on #pypy IRC, it is released in PyPy2 2.3 and later
+# According to ronan on #pypy IRC,it is released in PyPy2 2.3 and later
 # versions.
 #
-# Ubuntu 14.04 has PyPy 2.2.1, which does exhibit this bug.
+# Ubuntu 14.04 has PyPy 2.2.1,which does exhibit this bug.
 BROKEN_PYPY_CTXMGR_EXIT = False
-if hasattr(sys, 'pypy_version_info'):
+if hasattr(sys,'pypy_version_info'):
     class _Mgr(object):
         def __enter__(self):
             return self
-        def __exit__(self, *args):
-            if hasattr(sys, 'exc_clear'):
+        def __exit__(self,*args):
+            if hasattr(sys,'exc_clear'):
                 # Python 3 (PyPy3) doesn't have exc_clear
                 sys.exc_clear()
     try:

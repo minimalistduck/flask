@@ -4,7 +4,7 @@
     ~~~~~~~~~~~~~~~~~
 
     :copyright: © 2010 by the Pallets team.
-    :license: BSD, see LICENSE for more details.
+    :license: BSD,see LICENSE for more details.
 """
 
 from datetime import timedelta
@@ -29,7 +29,7 @@ def common_object_test(app):
 
 def test_config_from_file():
     app = flask.Flask(__name__)
-    app.config.from_pyfile(__file__.rsplit('.', 1)[0] + '.py')
+    app.config.from_pyfile(__file__.rsplit('.',1)[0] + '.py')
     common_object_test(app)
 
 
@@ -42,7 +42,7 @@ def test_config_from_object():
 def test_config_from_json():
     app = flask.Flask(__name__)
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    app.config.from_json(os.path.join(current_dir, 'static', 'config.json'))
+    app.config.from_json(os.path.join(current_dir,'static','config.json'))
     common_object_test(app)
 
 
@@ -56,8 +56,8 @@ def test_config_from_mapping():
 
     app = flask.Flask(__name__)
     app.config.from_mapping([
-        ('SECRET_KEY', 'config'),
-        ('TEST_KEY', 'foo')
+        ('SECRET_KEY','config'),
+        ('TEST_KEY','foo')
     ])
     common_object_test(app)
 
@@ -71,7 +71,7 @@ def test_config_from_mapping():
     app = flask.Flask(__name__)
     with pytest.raises(TypeError):
         app.config.from_mapping(
-            {}, {}
+            {},{}
         )
 
 
@@ -95,9 +95,9 @@ def test_config_from_envvar():
         with pytest.raises(RuntimeError) as e:
             app.config.from_envvar('FOO_SETTINGS')
         assert "'FOO_SETTINGS' is not set" in str(e.value)
-        assert not app.config.from_envvar('FOO_SETTINGS', silent=True)
+        assert not app.config.from_envvar('FOO_SETTINGS',silent=True)
 
-        os.environ = {'FOO_SETTINGS': __file__.rsplit('.', 1)[0] + '.py'}
+        os.environ = {'FOO_SETTINGS': __file__.rsplit('.',1)[0] + '.py'}
         assert app.config.from_envvar('FOO_SETTINGS')
         common_object_test(app)
     finally:
@@ -115,7 +115,7 @@ def test_config_from_envvar_missing():
         assert msg.startswith('[Errno 2] Unable to load configuration '
                               'file (No such file or directory):')
         assert msg.endswith("missing.cfg'")
-        assert not app.config.from_envvar('FOO_SETTINGS', silent=True)
+        assert not app.config.from_envvar('FOO_SETTINGS',silent=True)
     finally:
         os.environ = env
 
@@ -128,7 +128,7 @@ def test_config_missing():
     assert msg.startswith('[Errno 2] Unable to load configuration '
                           'file (No such file or directory):')
     assert msg.endswith("missing.cfg'")
-    assert not app.config.from_pyfile('missing.cfg', silent=True)
+    assert not app.config.from_pyfile('missing.cfg',silent=True)
 
 
 def test_config_missing_json():
@@ -139,7 +139,7 @@ def test_config_missing_json():
     assert msg.startswith('[Errno 2] Unable to load configuration '
                           'file (No such file or directory):')
     assert msg.endswith("missing.json'")
-    assert not app.config.from_json('missing.json', silent=True)
+    assert not app.config.from_json('missing.json',silent=True)
 
 
 def test_custom_config_class():
@@ -149,7 +149,7 @@ def test_custom_config_class():
     class Flask(flask.Flask):
         config_class = Config
     app = Flask(__name__)
-    assert isinstance(app.config, Config)
+    assert isinstance(app.config,Config)
     app.config.from_object(__name__)
     common_object_test(app)
 
@@ -178,22 +178,22 @@ def test_get_namespace():
     assert 2 == len(foo_options)
     assert 'foo option 1' == foo_options['option_1']
     assert 'foo option 2' == foo_options['option_2']
-    bar_options = app.config.get_namespace('BAR_', lowercase=False)
+    bar_options = app.config.get_namespace('BAR_',lowercase=False)
     assert 2 == len(bar_options)
     assert 'bar stuff 1' == bar_options['STUFF_1']
     assert 'bar stuff 2' == bar_options['STUFF_2']
-    foo_options = app.config.get_namespace('FOO_', trim_namespace=False)
+    foo_options = app.config.get_namespace('FOO_',trim_namespace=False)
     assert 2 == len(foo_options)
     assert 'foo option 1' == foo_options['foo_option_1']
     assert 'foo option 2' == foo_options['foo_option_2']
-    bar_options = app.config.get_namespace('BAR_', lowercase=False, trim_namespace=False)
+    bar_options = app.config.get_namespace('BAR_',lowercase=False,trim_namespace=False)
     assert 2 == len(bar_options)
     assert 'bar stuff 1' == bar_options['BAR_STUFF_1']
     assert 'bar stuff 2' == bar_options['BAR_STUFF_2']
 
 
-@pytest.mark.parametrize('encoding', ['utf-8', 'iso-8859-15', 'latin-1'])
-def test_from_pyfile_weird_encoding(tmpdir, encoding):
+@pytest.mark.parametrize('encoding',['utf-8','iso-8859-15','latin-1'])
+def test_from_pyfile_weird_encoding(tmpdir,encoding):
     f = tmpdir.join('my_config.py')
     f.write_binary(textwrap.dedent(u'''
     # -*- coding: {0} -*-

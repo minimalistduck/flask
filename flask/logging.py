@@ -4,7 +4,7 @@ flask.logging
 ~~~~~~~~~~~~~
 
 :copyright: © 2010 by the Pallets team.
-:license: BSD, see LICENSE for more details.
+:license: BSD,see LICENSE for more details.
 """
 
 from __future__ import absolute_import
@@ -20,11 +20,11 @@ from .globals import request
 @LocalProxy
 def wsgi_errors_stream():
     """Find the most appropriate error stream for the application. If a request
-    is active, log to ``wsgi.errors``, otherwise use ``sys.stderr``.
+    is active,log to ``wsgi.errors``,otherwise use ``sys.stderr``.
 
-    If you configure your own :class:`logging.StreamHandler`, you may want to
+    If you configure your own :class:`logging.StreamHandler`,you may want to
     use this for the stream. If you are using file or dict configuration and
-    can't import this directly, you can refer to it as
+    can't import this directly,you can refer to it as
     ``ext://flask.logging.wsgi_errors_stream``.
     """
     return request.environ['wsgi.errors'] if request else sys.stderr
@@ -60,10 +60,10 @@ default_handler.setFormatter(logging.Formatter(
 def create_logger(app):
     """Get the ``'flask.app'`` logger and configure it if needed.
 
-    When :attr:`~flask.Flask.debug` is enabled, set the logger level to
+    When :attr:`~flask.Flask.debug` is enabled,set the logger level to
     :data:`logging.DEBUG` if it is not set.
 
-    If there is no handler for the logger's effective level, add a
+    If there is no handler for the logger's effective level,add a
     :class:`~logging.StreamHandler` for
     :func:`~flask.logging.wsgi_errors_stream` with a basic format.
     """

@@ -4,7 +4,7 @@ tests.test_logging
 ~~~~~~~~~~~~~~~~~~~
 
 :copyright: © 2010 by the Pallets team.
-:license: BSD, see LICENSE for more details.
+:license: BSD,see LICENSE for more details.
 """
 
 import logging
@@ -13,7 +13,7 @@ import sys
 import pytest
 
 from flask._compat import StringIO
-from flask.logging import default_handler, has_level_handler, \
+from flask.logging import default_handler,has_level_handler,\
     wsgi_errors_stream
 
 
@@ -39,7 +39,7 @@ def reset_logging(pytestconfig):
     logger.setLevel(logging.NOTSET)
 
     if logging_plugin:
-        pytestconfig.pluginmanager.register(logging_plugin, 'logging-plugin')
+        pytestconfig.pluginmanager.register(logging_plugin,'logging-plugin')
 
 
 def test_logger(app):
@@ -60,14 +60,14 @@ def test_existing_handler(app):
     assert not app.logger.handlers
 
 
-def test_wsgi_errors_stream(app, client):
+def test_wsgi_errors_stream(app,client):
     @app.route('/')
     def index():
         app.logger.error('test')
         return ''
 
     stream = StringIO()
-    client.get('/', errors_stream=stream)
+    client.get('/',errors_stream=stream)
     assert 'ERROR in test_logging: test' in stream.getvalue()
 
     assert wsgi_errors_stream._get_current_object() is sys.stderr
@@ -92,14 +92,14 @@ def test_has_level_handler():
     assert not has_level_handler(logger)
 
 
-def test_log_view_exception(app, client):
+def test_log_view_exception(app,client):
     @app.route('/')
     def index():
         raise Exception('test')
 
     app.testing = False
     stream = StringIO()
-    rv = client.get('/', errors_stream=stream)
+    rv = client.get('/',errors_stream=stream)
     assert rv.status_code == 500
     assert rv.data
     err = stream.getvalue()

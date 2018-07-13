@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-    flask.ctx
+    flask.context
     ~~~~~~~~~
 
     Implements the objects required to keep the context.
 
     :copyright: © 2010 by the Pallets team.
-    :license: BSD, see LICENSE for more details.
+    :license: BSD,see LICENSE for more details.
 """
 
 import sys
@@ -14,9 +14,9 @@ from functools import update_wrapper
 
 from werkzeug.exceptions import HTTPException
 
-from .globals import _request_ctx_stack, _app_ctx_stack
-from .signals import appcontext_pushed, appcontext_popped
-from ._compat import BROKEN_PYPY_CTXMGR_EXIT, reraise
+from .globals import _request_context_stack,_app_context_stack
+from .signals import appcontext_pushed,appcontext_popped
+from ._compat import BROKEN_PYPY_CTXMGR_EXIT,reraise
 
 
 # a singleton sentinel value for parameter defaults
@@ -27,7 +27,7 @@ class _AppCtxGlobals(object):
     """A plain object. Used as a namespace for storing data during an
     application context.
 
-    Creating an app context automatically creates this object, which is
+    Creating an app context automatically creates this object,which is
     made available as the :data:`g` proxy.
 
     .. describe:: 'key' in g
@@ -43,8 +43,8 @@ class _AppCtxGlobals(object):
         .. versionadded:: 0.10
     """
 
-    def get(self, name, default=None):
-        """Get an attribute by name, or a default value. Like
+    def get(self,name,default=None):
+        """Get an attribute by name,or a default value. Like
         :meth:`dict.get`.
 
         :param name: Name of attribute to get.
@@ -52,9 +52,9 @@ class _AppCtxGlobals(object):
 
         .. versionadded:: 0.10
         """
-        return self.__dict__.get(name, default)
+        return self.__dict__.get(name,default)
 
-    def pop(self, name, default=_sentinel):
+    def pop(self,name,default=_sentinel):
         """Get and remove an attribute by name. Like :meth:`dict.pop`.
 
         :param name: Name of attribute to pop.
@@ -66,10 +66,10 @@ class _AppCtxGlobals(object):
         if default is _sentinel:
             return self.__dict__.pop(name)
         else:
-            return self.__dict__.pop(name, default)
+            return self.__dict__.pop(name,default)
 
-    def setdefault(self, name, default=None):
-        """Get the value of an attribute if it is present, otherwise
+    def setdefault(self,name,default=None):
+        """Get the value of an attribute if it is present,otherwise
         set and return a default value. Like :meth:`dict.setdefault`.
 
         :param name: Name of attribute to get.
@@ -78,16 +78,16 @@ class _AppCtxGlobals(object):
 
         .. versionadded:: 0.11
         """
-        return self.__dict__.setdefault(name, default)
+        return self.__dict__.setdefault(name,default)
 
-    def __contains__(self, item):
+    def __contains__(self,item):
         return item in self.__dict__
 
     def __iter__(self):
         return iter(self.__dict__)
 
     def __repr__(self):
-        top = _app_ctx_stack.top
+        top = _app_context_stack.top
         if top is not None:
             return '<flask.g of %r>' % top.app.name
         return object.__repr__(self)
@@ -114,7 +114,7 @@ def after_this_request(f):
 
     .. versionadded:: 0.9
     """
-    _request_ctx_stack.top._after_request_functions.append(f)
+    _request_context_stack.top._after_request_functions.append(f)
     return f
 
 
@@ -133,7 +133,7 @@ def copy_current_request_context(f):
         def index():
             @copy_current_request_context
             def do_some_work():
-                # do some work here, it can access flask.request like you
+                # do some work here,it can access flask.request like you
                 # would otherwise in the view function.
                 ...
             gevent.spawn(do_some_work)
@@ -141,29 +141,29 @@ def copy_current_request_context(f):
 
     .. versionadded:: 0.10
     """
-    top = _request_ctx_stack.top
+    top = _request_context_stack.top
     if top is None:
         raise RuntimeError('This decorator can only be used at local scopes '
             'when a request context is on the stack.  For instance within '
             'view functions.')
-    reqctx = top.copy()
-    def wrapper(*args, **kwargs):
-        with reqctx:
-            return f(*args, **kwargs)
-    return update_wrapper(wrapper, f)
+    reqcontext = top.copy()
+    def wrapper(*args,**kwargs):
+        with reqcontext:
+            return f(*args,**kwargs)
+    return update_wrapper(wrapper,f)
 
 
 def has_request_context():
     """If you have code that wants to test if a request context is there or
-    not this function can be used.  For instance, you may want to take advantage
-    of request information if the request object is available, but fail
+    not this function can be used.  For instance,you may want to take advantage
+    of request information if the request object is available,but fail
     silently if it is unavailable.
 
     ::
 
         class User(db.Model):
 
-            def __init__(self, username, remote_addr=None):
+            def __init__(self,username,remote_addr=None):
                 self.username = username
                 if remote_addr is None and has_request_context():
                     remote_addr = request.remote_addr
@@ -174,7 +174,7 @@ def has_request_context():
 
         class User(db.Model):
 
-            def __init__(self, username, remote_addr=None):
+            def __init__(self,username,remote_addr=None):
                 self.username = username
                 if remote_addr is None and request:
                     remote_addr = request.remote_addr
@@ -182,7 +182,7 @@ def has_request_context():
 
     .. versionadded:: 0.7
     """
-    return _request_ctx_stack.top is not None
+    return _request_context_stack.top is not None
 
 
 def has_app_context():
@@ -192,36 +192,36 @@ def has_app_context():
 
     .. versionadded:: 0.9
     """
-    return _app_ctx_stack.top is not None
+    return _app_context_stack.top is not None
 
 
 class AppContext(object):
     """The application context binds an application object implicitly
-    to the current thread or greenlet, similar to how the
+    to the current thread or greenlet,similar to how the
     :class:`RequestContext` binds request information.  The application
     context is also implicitly created if a request context is created
     but the application is not on top of the individual application
     context.
     """
 
-    def __init__(self, app):
+    def __init__(self,app):
         self.app = app
         self.url_adapter = app.create_url_adapter(None)
-        self.g = app.app_ctx_globals_class()
+        self.g = app.app_context_globals_class()
 
-        # Like request context, app contexts can be pushed multiple times
+        # Like request context,app contexts can be pushed multiple times
         # but there a basic "refcount" is enough to track them.
         self._refcnt = 0
 
     def push(self):
         """Binds the app context to the current context."""
         self._refcnt += 1
-        if hasattr(sys, 'exc_clear'):
+        if hasattr(sys,'exc_clear'):
             sys.exc_clear()
-        _app_ctx_stack.push(self)
+        _app_context_stack.push(self)
         appcontext_pushed.send(self.app)
 
-    def pop(self, exc=_sentinel):
+    def pop(self,exc=_sentinel):
         """Pops the app context."""
         try:
             self._refcnt -= 1
@@ -230,33 +230,33 @@ class AppContext(object):
                     exc = sys.exc_info()[1]
                 self.app.do_teardown_appcontext(exc)
         finally:
-            rv = _app_ctx_stack.pop()
-        assert rv is self, 'Popped wrong app context.  (%r instead of %r)' \
-            % (rv, self)
+            rv = _app_context_stack.pop()
+        assert rv is self,'Popped wrong app context.  (%r instead of %r)' \
+            % (rv,self)
         appcontext_popped.send(self.app)
 
     def __enter__(self):
         self.push()
         return self
 
-    def __exit__(self, exc_type, exc_value, tb):
+    def __exit__(self,exc_type,exc_value,tb):
         self.pop(exc_value)
 
         if BROKEN_PYPY_CTXMGR_EXIT and exc_type is not None:
-            reraise(exc_type, exc_value, tb)
+            reraise(exc_type,exc_value,tb)
 
 
 class RequestContext(object):
     """The request context contains all request relevant information.  It is
     created at the beginning of the request and pushed to the
-    `_request_ctx_stack` and removed at the end of it.  It will create the
+    `_request_context_stack` and removed at the end of it.  It will create the
     URL adapter and request object for the WSGI environment provided.
 
-    Do not attempt to use this class directly, instead use
+    Do not attempt to use this class directly,instead use
     :meth:`~flask.Flask.test_request_context` and
     :meth:`~flask.Flask.request_context` to create this object.
 
-    When the request context is popped, it will evaluate all the
+    When the request context is popped,it will evaluate all the
     functions registered on the application for teardown execution
     (:meth:`~flask.Flask.teardown_request`).
 
@@ -273,10 +273,10 @@ class RequestContext(object):
     You might find this helpful for unittests where you need the
     information from the context local around for a little longer.  Make
     sure to properly :meth:`~werkzeug.LocalStack.pop` the stack yourself in
-    that situation, otherwise your unittests will leak memory.
+    that situation,otherwise your unittests will leak memory.
     """
 
-    def __init__(self, app, environ, request=None):
+    def __init__(self,app,environ,request=None):
         self.app = app
         if request is None:
             request = app.request_class(environ)
@@ -289,7 +289,7 @@ class RequestContext(object):
         # other request contexts.  Now only if the last level is popped we
         # get rid of them.  Additionally if an application context is missing
         # one is created implicitly so for each level we add this information
-        self._implicit_app_ctx_stack = []
+        self._implicit_app_context_stack = []
 
         # indicator if the context was preserved.  Next time another context
         # is pushed the preserved context is popped.
@@ -307,11 +307,11 @@ class RequestContext(object):
         self.match_request()
 
     def _get_g(self):
-        return _app_ctx_stack.top.g
-    def _set_g(self, value):
-        _app_ctx_stack.top.g = value
-    g = property(_get_g, _set_g)
-    del _get_g, _set_g
+        return _app_context_stack.top.g
+    def _set_g(self,value):
+        _app_context_stack.top.g = value
+    g = property(_get_g,_set_g)
+    del _get_g,_set_g
 
     def copy(self):
         """Creates a copy of this request context with the same request object.
@@ -332,7 +332,7 @@ class RequestContext(object):
         of the request.
         """
         try:
-            url_rule, self.request.view_args = \
+            url_rule,self.request.view_args = \
                 self.url_adapter.match(return_rule=True)
             self.request.url_rule = url_rule
         except HTTPException as e:
@@ -345,42 +345,42 @@ class RequestContext(object):
         # on the stack.  The rationale is that you want to access that
         # information under debug situations.  However if someone forgets to
         # pop that context again we want to make sure that on the next push
-        # it's invalidated, otherwise we run at risk that something leaks
+        # it's invalidated,otherwise we run at risk that something leaks
         # memory.  This is usually only a problem in test suite since this
         # functionality is not active in production environments.
-        top = _request_ctx_stack.top
+        top = _request_context_stack.top
         if top is not None and top.preserved:
             top.pop(top._preserved_exc)
 
         # Before we push the request context we have to ensure that there
         # is an application context.
-        app_ctx = _app_ctx_stack.top
-        if app_ctx is None or app_ctx.app != self.app:
-            app_ctx = self.app.app_context()
-            app_ctx.push()
-            self._implicit_app_ctx_stack.append(app_ctx)
+        app_context = _app_context_stack.top
+        if app_context is None or app_context.app != self.app:
+            app_context = self.app.app_context()
+            app_context.push()
+            self._implicit_app_context_stack.append(app_context)
         else:
-            self._implicit_app_ctx_stack.append(None)
+            self._implicit_app_context_stack.append(None)
 
-        if hasattr(sys, 'exc_clear'):
+        if hasattr(sys,'exc_clear'):
             sys.exc_clear()
 
-        _request_ctx_stack.push(self)
+        _request_context_stack.push(self)
 
         # Open the session at the moment that the request context is available.
         # This allows a custom open_session method to use the request context.
         # Only open a new session if this is the first time the request was
-        # pushed, otherwise stream_with_context loses the session.
+        # pushed,otherwise stream_with_context loses the session.
         if self.session is None:
             session_interface = self.app.session_interface
             self.session = session_interface.open_session(
-                self.app, self.request
+                self.app,self.request
             )
 
             if self.session is None:
                 self.session = session_interface.make_null_session(self.app)
 
-    def pop(self, exc=_sentinel):
+    def pop(self,exc=_sentinel):
         """Pops the request context and unbinds it by doing that.  This will
         also trigger the execution of functions registered by the
         :meth:`~flask.Flask.teardown_request` decorator.
@@ -388,11 +388,11 @@ class RequestContext(object):
         .. versionchanged:: 0.9
            Added the `exc` argument.
         """
-        app_ctx = self._implicit_app_ctx_stack.pop()
+        app_context = self._implicit_app_context_stack.pop()
 
         try:
             clear_request = False
-            if not self._implicit_app_ctx_stack:
+            if not self._implicit_app_context_stack:
                 self.preserved = False
                 self._preserved_exc = None
                 if exc is _sentinel:
@@ -403,15 +403,15 @@ class RequestContext(object):
                 # we do that now.  This will only go into effect on Python 2.x,
                 # on 3.x it disappears automatically at the end of the exception
                 # stack.
-                if hasattr(sys, 'exc_clear'):
+                if hasattr(sys,'exc_clear'):
                     sys.exc_clear()
 
-                request_close = getattr(self.request, 'close', None)
+                request_close = getattr(self.request,'close',None)
                 if request_close is not None:
                     request_close()
                 clear_request = True
         finally:
-            rv = _request_ctx_stack.pop()
+            rv = _request_context_stack.pop()
 
             # get rid of circular dependencies at the end of the request
             # so that we don't require the GC to be active.
@@ -419,13 +419,13 @@ class RequestContext(object):
                 rv.request.environ['werkzeug.request'] = None
 
             # Get rid of the app as well if necessary.
-            if app_ctx is not None:
-                app_ctx.pop(exc)
+            if app_context is not None:
+                app_context.pop(exc)
 
-            assert rv is self, 'Popped wrong request context.  ' \
-                '(%r instead of %r)' % (rv, self)
+            assert rv is self,'Popped wrong request context.  ' \
+                '(%r instead of %r)' % (rv,self)
 
-    def auto_pop(self, exc):
+    def auto_pop(self,exc):
         if self.request.environ.get('flask._preserve_context') or \
            (exc is not None and self.app.preserve_context_on_exception):
             self.preserved = True
@@ -437,7 +437,7 @@ class RequestContext(object):
         self.push()
         return self
 
-    def __exit__(self, exc_type, exc_value, tb):
+    def __exit__(self,exc_type,exc_value,tb):
         # do not pop the request stack if we are in debug mode and an
         # exception happened.  This will allow the debugger to still
         # access the request object in the interactive shell.  Furthermore
@@ -446,7 +446,7 @@ class RequestContext(object):
         self.auto_pop(exc_value)
 
         if BROKEN_PYPY_CTXMGR_EXIT and exc_type is not None:
-            reraise(exc_type, exc_value, tb)
+            reraise(exc_type,exc_value,tb)
 
     def __repr__(self):
         return '<%s \'%s\' [%s] of %s>' % (

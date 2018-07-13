@@ -6,7 +6,7 @@
     Pluggable views.
 
     :copyright: © 2010 by the Pallets team.
-    :license: BSD, see LICENSE for more details.
+    :license: BSD,see LICENSE for more details.
 """
 
 import pytest
@@ -23,18 +23,18 @@ def common_test(app):
     assert c.get('/').data == b'GET'
     assert c.post('/').data == b'POST'
     assert c.put('/').status_code == 405
-    meths = parse_set_header(c.open('/', method='OPTIONS').headers['Allow'])
-    assert sorted(meths) == ['GET', 'HEAD', 'OPTIONS', 'POST']
+    meths = parse_set_header(c.open('/',method='OPTIONS').headers['Allow'])
+    assert sorted(meths) == ['GET','HEAD','OPTIONS','POST']
 
 
 def test_basic_view(app):
     class Index(flask.views.View):
-        methods = ['GET', 'POST']
+        methods = ['GET','POST']
 
         def dispatch_request(self):
             return flask.request.method
 
-    app.add_url_rule('/', view_func=Index.as_view('index'))
+    app.add_url_rule('/',view_func=Index.as_view('index'))
     common_test(app)
 
 
@@ -46,7 +46,7 @@ def test_method_based_view(app):
         def post(self):
             return 'POST'
 
-    app.add_url_rule('/', view_func=Index.as_view('index'))
+    app.add_url_rule('/',view_func=Index.as_view('index'))
 
     common_test(app)
 
@@ -68,11 +68,11 @@ def test_view_patching(app):
 
     view = Index.as_view('index')
     view.view_class = Other
-    app.add_url_rule('/', view_func=view)
+    app.add_url_rule('/',view_func=view)
     common_test(app)
 
 
-def test_view_inheritance(app, client):
+def test_view_inheritance(app,client):
     class Index(flask.views.MethodView):
         def get(self):
             return 'GET'
@@ -84,16 +84,16 @@ def test_view_inheritance(app, client):
         def delete(self):
             return 'DELETE'
 
-    app.add_url_rule('/', view_func=BetterIndex.as_view('index'))
+    app.add_url_rule('/',view_func=BetterIndex.as_view('index'))
 
-    meths = parse_set_header(client.open('/', method='OPTIONS').headers['Allow'])
-    assert sorted(meths) == ['DELETE', 'GET', 'HEAD', 'OPTIONS', 'POST']
+    meths = parse_set_header(client.open('/',method='OPTIONS').headers['Allow'])
+    assert sorted(meths) == ['DELETE','GET','HEAD','OPTIONS','POST']
 
 
-def test_view_decorators(app, client):
+def test_view_decorators(app,client):
     def add_x_parachute(f):
-        def new_function(*args, **kwargs):
-            resp = flask.make_response(f(*args, **kwargs))
+        def new_function(*args,**kwargs):
+            resp = flask.make_response(f(*args,**kwargs))
             resp.headers['X-Parachute'] = 'awesome'
             return resp
 
@@ -105,7 +105,7 @@ def test_view_decorators(app, client):
         def dispatch_request(self):
             return 'Awesome'
 
-    app.add_url_rule('/', view_func=Index.as_view('index'))
+    app.add_url_rule('/',view_func=Index.as_view('index'))
     rv = client.get('/')
     assert rv.headers['X-Parachute'] == 'awesome'
     assert rv.data == b'Awesome'
@@ -120,9 +120,9 @@ def test_view_provide_automatic_options_attr():
         def dispatch_request(self):
             return 'Hello World!'
 
-    app.add_url_rule('/', view_func=Index1.as_view('index'))
+    app.add_url_rule('/',view_func=Index1.as_view('index'))
     c = app.test_client()
-    rv = c.open('/', method='OPTIONS')
+    rv = c.open('/',method='OPTIONS')
     assert rv.status_code == 405
 
     app = flask.Flask(__name__)
@@ -134,9 +134,9 @@ def test_view_provide_automatic_options_attr():
         def dispatch_request(self):
             return 'Hello World!'
 
-    app.add_url_rule('/', view_func=Index2.as_view('index'))
+    app.add_url_rule('/',view_func=Index2.as_view('index'))
     c = app.test_client()
-    rv = c.open('/', method='OPTIONS')
+    rv = c.open('/',method='OPTIONS')
     assert sorted(rv.allow) == ['OPTIONS']
 
     app = flask.Flask(__name__)
@@ -145,20 +145,20 @@ def test_view_provide_automatic_options_attr():
         def dispatch_request(self):
             return 'Hello World!'
 
-    app.add_url_rule('/', view_func=Index3.as_view('index'))
+    app.add_url_rule('/',view_func=Index3.as_view('index'))
     c = app.test_client()
-    rv = c.open('/', method='OPTIONS')
+    rv = c.open('/',method='OPTIONS')
     assert 'OPTIONS' in rv.allow
 
 
-def test_implicit_head(app, client):
+def test_implicit_head(app,client):
     class Index(flask.views.MethodView):
         def get(self):
-            return flask.Response('Blub', headers={
+            return flask.Response('Blub',headers={
                 'X-Method': flask.request.method
             })
 
-    app.add_url_rule('/', view_func=Index.as_view('index'))
+    app.add_url_rule('/',view_func=Index.as_view('index'))
     rv = client.get('/')
     assert rv.data == b'Blub'
     assert rv.headers['X-Method'] == 'GET'
@@ -167,15 +167,15 @@ def test_implicit_head(app, client):
     assert rv.headers['X-Method'] == 'HEAD'
 
 
-def test_explicit_head(app, client):
+def test_explicit_head(app,client):
     class Index(flask.views.MethodView):
         def get(self):
             return 'GET'
 
         def head(self):
-            return flask.Response('', headers={'X-Method': 'HEAD'})
+            return flask.Response('',headers={'X-Method': 'HEAD'})
 
-    app.add_url_rule('/', view_func=Index.as_view('index'))
+    app.add_url_rule('/',view_func=Index.as_view('index'))
     rv = client.get('/')
     assert rv.data == b'GET'
     rv = client.head('/')
@@ -187,21 +187,21 @@ def test_endpoint_override(app):
     app.debug = True
 
     class Index(flask.views.View):
-        methods = ['GET', 'POST']
+        methods = ['GET','POST']
 
         def dispatch_request(self):
             return flask.request.method
 
-    app.add_url_rule('/', view_func=Index.as_view('index'))
+    app.add_url_rule('/',view_func=Index.as_view('index'))
 
     with pytest.raises(AssertionError):
-        app.add_url_rule('/', view_func=Index.as_view('index'))
+        app.add_url_rule('/',view_func=Index.as_view('index'))
 
     # But these tests should still pass. We just log a warning.
     common_test(app)
 
 
-def test_multiple_inheritance(app, client):
+def test_multiple_inheritance(app,client):
     class GetView(flask.views.MethodView):
         def get(self):
             return 'GET'
@@ -210,17 +210,17 @@ def test_multiple_inheritance(app, client):
         def delete(self):
             return 'DELETE'
 
-    class GetDeleteView(GetView, DeleteView):
+    class GetDeleteView(GetView,DeleteView):
         pass
 
-    app.add_url_rule('/', view_func=GetDeleteView.as_view('index'))
+    app.add_url_rule('/',view_func=GetDeleteView.as_view('index'))
 
     assert client.get('/').data == b'GET'
     assert client.delete('/').data == b'DELETE'
-    assert sorted(GetDeleteView.methods) == ['DELETE', 'GET']
+    assert sorted(GetDeleteView.methods) == ['DELETE','GET']
 
 
-def test_remove_method_from_parent(app, client):
+def test_remove_method_from_parent(app,client):
     class GetView(flask.views.MethodView):
         def get(self):
             return 'GET'
@@ -229,10 +229,10 @@ def test_remove_method_from_parent(app, client):
         def post(self):
             return 'POST'
 
-    class View(GetView, OtherView):
+    class View(GetView,OtherView):
         methods = ['GET']
 
-    app.add_url_rule('/', view_func=View.as_view('index'))
+    app.add_url_rule('/',view_func=View.as_view('index'))
 
     assert client.get('/').data == b'GET'
     assert client.post('/').status_code == 405

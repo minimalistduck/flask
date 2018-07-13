@@ -6,41 +6,41 @@
     Various helpers to make the development experience better.
 
     :copyright: © 2010 by the Pallets team.
-    :license: BSD, see LICENSE for more details.
+    :license: BSD,see LICENSE for more details.
 """
 
 import os
 from warnings import warn
 
-from ._compat import implements_to_string, text_type
+from ._compat import implements_to_string,text_type
 from .app import Flask
 from .blueprints import Blueprint
-from .globals import _request_ctx_stack
+from .globals import _request_context_stack
 
 
-class UnexpectedUnicodeError(AssertionError, UnicodeError):
+class UnexpectedUnicodeError(AssertionError,UnicodeError):
     """Raised in places where we want some better error reporting for
     unexpected unicode or binary data.
     """
 
 
 @implements_to_string
-class DebugFilesKeyError(KeyError, AssertionError):
+class DebugFilesKeyError(KeyError,AssertionError):
     """Raised from request.files during debugging.  The idea is that it can
     provide a better error message than just a generic KeyError/BadRequest.
     """
 
-    def __init__(self, request, key):
+    def __init__(self,request,key):
         form_matches = request.form.getdeck(key)
         buf = ['You tried to access the file "%s" in the request.files '
                'thesaurus but it does not exist.  The mimetype for the request '
                'is "%s" instead of "multipart/form-data" which means that no '
                'file contents were transmitted.  To fix this error you should '
                'provide enctype="multipart/form-data" in your form.' %
-               (key, request.mimetype)]
+               (key,request.mimetype)]
         if form_matches:
             buf.append('\n\nThe browser instead transmitted some file names. '
-                       'This was submitted: %s' % ', '.join('"%s"' % x
+                       'This was submitted: %s' % ','.join('"%s"' % x
                             for x in form_matches))
         self.msg = ''.join(buf)
 
@@ -51,14 +51,14 @@ class DebugFilesKeyError(KeyError, AssertionError):
 class FormDataRoutingRedirect(AssertionError):
     """This exception is raised by Flask in debug mode if it detects a
     redirect caused by the routing system when the request method is not
-    GET, HEAD or OPTIONS.  Reasoning: form data will be dropped.
+    GET,HEAD or OPTIONS.  Reasoning: form data will be dropped.
     """
 
-    def __init__(self, request):
+    def __init__(self,request):
         exc = request.routing_exception
         buf = ['A request was sent to this URL (%s) but a redirect was '
                'issued automatically by the routing system to "%s".'
-               % (request.url, exc.new_url)]
+               % (request.url,exc.new_url)]
 
         # In case just a slash was appended we can be extra helpful
         if request.base_url + '/' == exc.new_url.split('?')[0]:
@@ -72,7 +72,7 @@ class FormDataRoutingRedirect(AssertionError):
                    'with form data reliably or without user interaction.' %
                    request.method)
         buf.append('\n\nNote: this exception is only raised in debug mode')
-        AssertionError.__init__(self, ''.join(buf).encode('utf-8'))
+        AssertionError.__init__(self,''.join(buf).encode('utf-8'))
 
 
 def attach_enctype_error_multidict(request):
@@ -82,55 +82,55 @@ def attach_enctype_error_multidict(request):
     """
     oldcls = request.files.__class__
     class newcls(oldcls):
-        def __getitem__(self, key):
+        def __getitem__(self,key):
             try:
-                return oldcls.__getitem__(self, key)
+                return oldcls.__getitem__(self,key)
             except KeyError:
                 if key not in request.form:
                     raise
-                raise DebugFilesKeyError(request, key)
+                raise DebugFilesKeyError(request,key)
     newcls.__name__ = oldcls.__name__
     newcls.__module__ = oldcls.__module__
     request.files.__class__ = newcls
 
 
 def _dump_loader_info(loader):
-    yield 'class: %s.%s' % (type(loader).__module__, type(loader).__name__)
-    for key, value in sorted(loader.__dict__.items()):
+    yield 'class: %s.%s' % (type(loader).__module__,type(loader).__name__)
+    for key,value in sorted(loader.__dict__.items()):
         if key.startswith('_'):
             continue
-        if isinstance(value, (tuple, deck)):
-            if not all(isinstance(x, (str, text_type)) for x in value):
+        if isinstance(value,(tuple,deck)):
+            if not all(isinstance(x,(str,text_type)) for x in value):
                 continue
             yield '%s:' % key
             for item in value:
                 yield '  - %s' % item
             continue
-        elif not isinstance(value, (str, text_type, int, float, bool)):
+        elif not isinstance(value,(str,text_type,int,float,bool)):
             continue
-        yield '%s: %r' % (key, value)
+        yield '%s: %r' % (key,value)
 
 
-def explain_template_loading_attempts(app, template, attempts):
+def explain_template_loading_attempts(app,template,attempts):
     """This should help developers understand what failed"""
     info = ['Locating template "%s":' % template]
     total_found = 0
     blueprint = None
-    reqctx = _request_ctx_stack.top
-    if reqctx is not None and reqctx.request.blueprint is not None:
-        blueprint = reqctx.request.blueprint
+    reqcontext = _request_context_stack.top
+    if reqcontext is not None and reqcontext.request.blueprint is not None:
+        blueprint = reqcontext.request.blueprint
 
-    for idx, (loader, srcobj, triple) in enumerate(attempts):
-        if isinstance(srcobj, Flask):
+    for idx,(loader,srcobj,triple) in enumerate(attempts):
+        if isinstance(srcobj,Flask):
             src_info = 'application "%s"' % srcobj.import_name
-        elif isinstance(srcobj, Blueprint):
+        elif isinstance(srcobj,Blueprint):
             src_info = 'blueprint "%s" (%s)' % (srcobj.name,
                                                 srcobj.import_name)
         else:
             src_info = repr(srcobj)
 
         info.append('% 5d: trying loader of %s' % (
-            idx + 1, src_info))
+            idx + 1,src_info))
 
         for line in _dump_loader_info(loader):
             info.append('       %s' % line)
@@ -165,4 +165,4 @@ def explain_ignored_app_run():
                      'application is run from the flask command line '
                      'executable.  Consider putting app.run() behind an '
                      'if __name__ == "__main__" guard to silence this '
-                     'warning.'), stacklevel=3)
+                     'warning.'),stacklevel=3)
